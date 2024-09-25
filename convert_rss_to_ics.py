@@ -2,6 +2,7 @@ import feedparser
 from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 import pytz
+import re
 
 def rss_to_ics(rss_url, ics_file_path):
     # Fetch and parse RSS feed
@@ -12,26 +13,42 @@ def rss_to_ics(rss_url, ics_file_path):
     cal.add('prodid', '-//Chabad Zmanim//EN')
     cal.add('version', '2.0')
 
+    # Extract the date from the title
+    title_date_match = re.search(r'on (\w+, \w+ \d+, \d{4})', feed.feed.title)
+    if title_date_match:
+        base_date_str = title_date_match.group(1)
+        base_date = datetime.strptime(base_date_str, "%A, %B %d, %Y")
+    else:
+        base_date = datetime.now()
+
     # Add events to the calendar
     for entry in feed.entries:
         event = Event()
         event.add('summary', entry.title)
         event.add('description', entry.description)
 
-        # Parse the date and time from the description
-        description_parts = entry.description.split(' - ')
-        date_str = description_parts[0]
-        time_str = description_parts[1].split(':')[1].strip()
+        # Extract time using regex
+        time_match = re.search(r'(\d{1,2}:\d{2} [AP]M)', entry.title)
+        if time_match:
+            time_str = time_match.group(1)
 
-        # Parse date and time
-        date_time = datetime.strptime(f"{date_str} {time_str}", "%A, %B %d, %Y %I:%M %p")
-        date_time = date_time.replace(tzinfo=pytz.UTC)
+            # Parse time
+            time = datetime.strptime(time_str, "%I:%M %p").time()
 
-        event.add('dtstart', date_time)
-        event.add('dtend', date_time + timedelta(minutes=1))  # Assume 1-minute duration
-        event.add('dtstamp', datetime.now(tz=pytz.UTC))
-        event.add('url', entry.link)
-        cal.add_component(event)
+            # Combine base_date and time
+            date_time = datetime.combine(base_date.date(), time)
+
+            # Handle midnight crossing
+            if time.hour < 12 and "AM" in time_str:
+                date_time += timedelta(days=1)
+
+            date_time = date_time.replace(tzinfo=pytz.UTC)
+
+            event.add('dtstart', date_time)
+            event.add('dtend', date_time + timedelta(minutes=1))  # Assume 1-minute duration
+            event.add('dtstamp', datetime.now(tz=pytz.UTC))
+            event.add('url', entry.link)
+            cal.add_component(event)
 
     # Write to file
     with open(ics_file_path, 'wb') as f:
