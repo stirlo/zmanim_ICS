@@ -1,6 +1,6 @@
 import feedparser
 from icalendar import Calendar, Event
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 def rss_to_ics(rss_url, ics_file_path):
@@ -18,12 +18,17 @@ def rss_to_ics(rss_url, ics_file_path):
         event.add('summary', entry.title)
         event.add('description', entry.description)
 
-        # Parse the date from the title (adjust as needed)
-        date_str = entry.title.split(' - ')[0]
-        date = datetime.strptime(date_str, '%A, %B %d, %Y').replace(tzinfo=pytz.UTC)
+        # Parse the date and time from the description
+        description_parts = entry.description.split(' - ')
+        date_str = description_parts[0]
+        time_str = description_parts[1].split(':')[1].strip()
 
-        event.add('dtstart', date)
-        event.add('dtend', date)
+        # Parse date and time
+        date_time = datetime.strptime(f"{date_str} {time_str}", "%A, %B %d, %Y %I:%M %p")
+        date_time = date_time.replace(tzinfo=pytz.UTC)
+
+        event.add('dtstart', date_time)
+        event.add('dtend', date_time + timedelta(minutes=1))  # Assume 1-minute duration
         event.add('dtstamp', datetime.now(tz=pytz.UTC))
         event.add('url', entry.link)
         cal.add_component(event)
