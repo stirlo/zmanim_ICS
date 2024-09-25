@@ -13,13 +13,16 @@ def rss_to_ics(rss_url, ics_file_path):
     cal.add('prodid', '-//Chabad Zmanim//EN')
     cal.add('version', '2.0')
 
+    # Set the timezone to Australian Eastern Time (will handle both standard and daylight saving time)
+    local_tz = pytz.timezone('Australia/Melbourne')
+
     # Extract the date from the title
     title_date_match = re.search(r'on (\w+, \w+ \d+, \d{4})', feed.feed.title)
     if title_date_match:
         base_date_str = title_date_match.group(1)
         base_date = datetime.strptime(base_date_str, "%A, %B %d, %Y")
     else:
-        base_date = datetime.now()
+        base_date = datetime.now(local_tz)
 
     # Add events to the calendar
     for entry in feed.entries:
@@ -42,11 +45,12 @@ def rss_to_ics(rss_url, ics_file_path):
             if time.hour < 12 and "AM" in time_str:
                 date_time += timedelta(days=1)
 
-            date_time = date_time.replace(tzinfo=pytz.UTC)
+            # Localize the datetime to the correct timezone, accounting for DST
+            date_time = local_tz.localize(date_time)
 
             event.add('dtstart', date_time)
             event.add('dtend', date_time + timedelta(minutes=1))  # Assume 1-minute duration
-            event.add('dtstamp', datetime.now(tz=pytz.UTC))
+            event.add('dtstamp', datetime.now(local_tz))
             event.add('url', entry.link)
             cal.add_component(event)
 
