@@ -2,123 +2,114 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Chabad Zmanim//EN
 BEGIN:VEVENT
-SUMMARY:Dawn (Alot Hashachar) - 4:38 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T043800
-DTEND;TZID=Australia/Melbourne:20240928T043900
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Dawn (Alot Hashachar) - 4:38 AM\n				 -- (9/27/2024)
+SUMMARY:Dawn (Alot Hashachar) - 4:35 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T043500
+DTEND;TZID=Australia/Melbourne:20240930T043600
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Dawn (Alot Hashachar) - 4:35 AM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Earliest Tallit and Tefillin (Misheyakir) - 5:14 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T051400
-DTEND;TZID=Australia/Melbourne:20240928T051500
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Earliest Tallit and Tefillin (Misheyakir) - 5:14 AM\n				 -- (
- 9/27/2024)
+SUMMARY:Earliest Tallit and Tefillin (Misheyakir) - 5:11 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T051100
+DTEND;TZID=Australia/Melbourne:20240930T051200
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Earliest Tallit and Tefillin (Misheyakir) - 5:11 AM\n				 -- (
+ 9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Sunrise (Hanetz Hachamah) - 6:02 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T060200
-DTEND;TZID=Australia/Melbourne:20240928T060300
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Sunrise (Hanetz Hachamah) - 6:02 AM\n				 -- (9/27/2024)
+SUMMARY:Sunrise (Hanetz Hachamah) - 5:58 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T055800
+DTEND;TZID=Australia/Melbourne:20240930T055900
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Sunrise (Hanetz Hachamah) - 5:58 AM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Latest Shema - 9:04 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T090400
-DTEND;TZID=Australia/Melbourne:20240928T090500
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Latest Shema - 9:04 AM\n				 -- (9/27/2024)
+SUMMARY:Latest Shema - 9:02 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T090200
+DTEND;TZID=Australia/Melbourne:20240930T090300
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Latest Shema - 9:02 AM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Latest Shacharit - 10:06 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T100600
-DTEND;TZID=Australia/Melbourne:20240928T100700
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Latest Shacharit - 10:06 AM\n				 -- (9/27/2024)
+SUMMARY:Latest Shacharit - 10:05 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T100500
+DTEND;TZID=Australia/Melbourne:20240930T100600
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Latest Shacharit - 10:05 AM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Midday (Chatzot Hayom) - 12:11 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T121100
-DTEND;TZID=Australia/Melbourne:20240927T121200
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Midday (Chatzot Hayom) - 12:11 PM\n				 -- (9/27/2024)
+SUMMARY:Midday (Chatzot Hayom) - 12:10 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T121000
+DTEND;TZID=Australia/Melbourne:20240929T121100
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Midday (Chatzot Hayom) - 12:10 PM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Earliest Mincha (Mincha Gedolah) - 12:43 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T124300
-DTEND;TZID=Australia/Melbourne:20240927T124400
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Earliest Mincha (Mincha Gedolah) - 12:43 PM\n				 -- (9/27/202
+SUMMARY:Earliest Mincha (Mincha Gedolah) - 12:42 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T124200
+DTEND;TZID=Australia/Melbourne:20240929T124300
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Earliest Mincha (Mincha Gedolah) - 12:42 PM\n				 -- (9/29/202
  4)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Mincha Ketanah (“Small Mincha”) - 3:50 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T155000
-DTEND;TZID=Australia/Melbourne:20240927T155100
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Mincha Ketanah (“Small Mincha”) - 3:50 PM\n				 -- (9/27/2
+SUMMARY:Mincha Ketanah (“Small Mincha”) - 3:50 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T155000
+DTEND;TZID=Australia/Melbourne:20240929T155100
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Mincha Ketanah (“Small Mincha”) - 3:50 PM\n				 -- (9/29/2
  024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Plag Hamincha (“Half of Mincha”) - 5:07 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T170700
-DTEND;TZID=Australia/Melbourne:20240927T170800
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Plag Hamincha (“Half of Mincha”) - 5:07 PM\n				 -- (9/27/
+SUMMARY:Plag Hamincha (“Half of Mincha”) - 5:09 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T170900
+DTEND;TZID=Australia/Melbourne:20240929T171000
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Plag Hamincha (“Half of Mincha”) - 5:09 PM\n				 -- (9/29/
  2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Candle Lighting - 6:03 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T180300
-DTEND;TZID=Australia/Melbourne:20240927T180400
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Candle Lighting - 6:03 PM\n				 -- (9/27/2024)
+SUMMARY:Sunset (Shkiah) - 6:23 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T182300
+DTEND;TZID=Australia/Melbourne:20240929T182400
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Sunset (Shkiah) - 6:23 PM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Sunset (Shkiah) - 6:21 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T182100
-DTEND;TZID=Australia/Melbourne:20240927T182200
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Sunset (Shkiah) - 6:21 PM\n				 -- (9/27/2024)
+SUMMARY:Nightfall (Tzeit Hakochavim) - 6:49 PM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240929T184900
+DTEND;TZID=Australia/Melbourne:20240929T185000
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Nightfall (Tzeit Hakochavim) - 6:49 PM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
 BEGIN:VEVENT
-SUMMARY:Nightfall (Tzeit Hakochavim) - 6:48 PM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240927T184800
-DTEND;TZID=Australia/Melbourne:20240927T184900
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Nightfall (Tzeit Hakochavim) - 6:48 PM\n				 -- (9/27/2024)
-URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
- e/1/bDef/0/before/18
-END:VEVENT
-BEGIN:VEVENT
-SUMMARY:Midnight (Chatzot HaLailah) - 12:10 AM -- (9/27/2024)
-DTSTART;TZID=Australia/Melbourne:20240928T001000
-DTEND;TZID=Australia/Melbourne:20240928T001100
-DTSTAMP:20240927T061424Z
-DESCRIPTION:Midnight (Chatzot HaLailah) - 12:10 AM\n				 -- (9/27/2024)
+SUMMARY:Midnight (Chatzot HaLailah) - 12:09 AM -- (9/29/2024)
+DTSTART;TZID=Australia/Melbourne:20240930T000900
+DTEND;TZID=Australia/Melbourne:20240930T001000
+DTSTAMP:20240929T050355Z
+DESCRIPTION:Midnight (Chatzot HaLailah) - 12:09 AM\n				 -- (9/29/2024)
 URL:https://www.chabad.org/calendar/zmanim_cdo/locationId/1270/locationTyp
  e/1/bDef/0/before/18
 END:VEVENT
