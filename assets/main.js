@@ -22,8 +22,8 @@ function calculateHebrewDate() {
             return;
         }
 
-        // Create location object
-        const location = new Hebcal.GeoLocation(
+        // Create location object using hebcal bundle
+        const location = new hebcal.GeoLocation(
             "Custom Location",
             parseFloat(lat),
             parseFloat(lon),
@@ -33,23 +33,23 @@ function calculateHebrewDate() {
 
         // Get current date
         const now = new Date();
-        const today = new Hebcal.HDate(now);
+        const today = new hebcal.HDate(now);
 
-        // Create NOAA Calculator
-        const noaa = new Hebcal.NOAACalculator(location, today);
+        // Create Zmanim calculator
+        const zmanim = new hebcal.Zmanim(location, today, true);
 
         // Get zmanim
-        const sunrise = noaa.getSunrise();
-        const sunset = noaa.getSunset();
-        const alotHaShachar = noaa.getBeginCivilTwilight();
-        const misheyakir = noaa.getSunriseOffsetByDegrees(11.5);
-        const sofZmanShma = noaa.getSunriseOffsetByDegrees(30);
-        const sofZmanTfilla = noaa.getSunriseOffsetByDegrees(36);
-        const chatzot = noaa.getSunTransit();
-        const minchaGedola = noaa.getSunriseOffsetByDegrees(37.5);
-        const minchaKetana = noaa.getSunriseOffsetByDegrees(49.5);
-        const plagHaMincha = noaa.getSunriseOffsetByDegrees(54.75);
-        const tzeit = noaa.getEndCivilTwilight();
+        const sunrise = zmanim.sunrise();
+        const sunset = zmanim.sunset();
+        const alotHaShachar = zmanim.alotHaShachar();
+        const misheyakir = zmanim.misheyakir();
+        const sofZmanShma = zmanim.sofZmanShma();
+        const sofZmanTfilla = zmanim.sofZmanTfilla();
+        const chatzot = zmanim.chatzot();
+        const minchaGedola = zmanim.minchaGedola();
+        const minchaKetana = zmanim.minchaKetana();
+        const plagHaMincha = zmanim.plagHaMincha();
+        const tzeit = zmanim.tzeit();
 
         // Format the results
         const hebrewDateStr = today.toString();
