@@ -22,13 +22,13 @@ function calculateHebrewDate() {
             return;
         }
 
-        // Create location object using hebcal bundle
+        // Create location object
         const location = new hebcal.GeoLocation(
             "Custom Location",
             parseFloat(lat),
             parseFloat(lon),
-            0, // elevation
-            "UTC" // timezone
+            0,
+            "UTC"
         );
 
         // Get current date
@@ -72,10 +72,23 @@ function calculateHebrewDate() {
                 <div>Tzeit HaKochavim: ${formatTime(tzeit)}</div>
             </div>`;
 
+        // Add holiday events
+        const hebcalLocation = new hebcal.Location(
+            parseFloat(lat),
+            parseFloat(lon),
+            false,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            "Custom Location",
+            ""
+        );
+
+        const events = getHolidayEvents(hebcalLocation);
+        displayEvents(events);
+
     } catch (error) {
         console.error('Error:', error);
         document.getElementById('result').innerHTML = 
-            `<div>Error calculating Hebrew date: ${error.message}</div>`;
+            `<div>Error calculating: ${error.message}</div>`;
         document.getElementById('debug').innerHTML = 
             `Debug info: ${error.stack}`;
     }
@@ -84,4 +97,66 @@ function calculateHebrewDate() {
 function formatTime(date) {
     if (!date) return 'N/A';
     return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+}
+
+function getHolidayEvents(location) {
+    const now = new Date();
+    const year = now.getFullYear();
+
+    const options = {
+        year: year,
+        isHebrewYear: false,
+        candlelighting: true,
+        location: location,
+        sedrot: true,
+        noMinorFast: true,
+        mask: hebcal.flags.ROSH_CHODESH |
+              hebcal.flags.MAJOR_FAST |
+              hebcal.flags.MINOR_HOLIDAY |
+              hebcal.flags.MAJOR_HOLIDAY |
+              hebcal.flags.MODERN_HOLIDAY |
+              hebcal.flags.SPECIAL_SHABBAT |
+              hebcal.flags.ROSH_CHODESH |
+              hebcal.flags.SHABBAT_MEVARCHIM |
+              hebcal.flags.PARSHA_HASHAVUA
+    };
+
+    const events = hebcal.HebrewCalendar.calendar(options);
+
+    return events.map(ev => ({
+        title: ev.render('en'),
+        date: ev.getDate().greg(),
+        category: ev.getCategories()[0],
+        emoji: ev.getEmoji ? ev.getEmoji() : '✡️',
+        flags: ev.getFlags()
+    }));
+}
+
+function displayEvents(events) {
+    const container = document.getElementById('events-container');
+    if (!container) {
+        console.error('Events container not found');
+        return;
+    }
+    container.innerHTML = '';
+
+    events.forEach(event => {
+        const eventDiv = document.createElement('div');
+        eventDiv.className = `event-item ${event.category}`;
+
+        const dateStr = event.date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        eventDiv.innerHTML = `
+            <span class="event-emoji">${event.emoji}</span>
+            <span class="event-title">${event.title}</span>
+            <span class="event-date">${dateStr}</span>
+        `;
+
+        container.appendChild(eventDiv);
+    });
 }
