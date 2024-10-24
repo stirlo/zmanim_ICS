@@ -23,37 +23,54 @@ function calculateHebrewDate() {
         }
 
         // Create location object
-        const location = {
-            lat: parseFloat(lat),
-            long: parseFloat(lon),
-            il: false
-        };
+        const location = new hebcal.GeoLocation(
+            "Custom Location",
+            parseFloat(lat),
+            parseFloat(lon),
+            0, // elevation
+            "UTC" // timezone
+        );
 
         // Get current date
         const now = new Date();
+        const hDate = new hebcal.HDate(now);
 
-        // Create Hebrew date
-        const events = Hebcal.HebrewCalendar.getHolidaysForDate(now);
-        const hDate = new Hebcal.HDate(now);
+        // Create NOAA Calculator
+        const noaa = new hebcal.NOAACalculator(location, hDate);
 
-        // Get zmanim (times) for the location
-        const times = Hebcal.Zmanim.getSunriseSunset(location, now);
+        // Get zmanim
+        const sunrise = noaa.getSunrise();
+        const sunset = noaa.getSunset();
+        const alotHaShachar = noaa.alotHaShachar();
+        const misheyakir = noaa.misheyakir();
+        const sofZmanShma = noaa.sofZmanShma();
+        const sofZmanTfilla = noaa.sofZmanTfilla();
+        const chatzot = noaa.chatzot();
+        const minchaGedola = noaa.minchaGedola();
+        const minchaKetana = noaa.minchaKetana();
+        const plagHaMincha = noaa.plagHaMincha();
+        const tzeit = noaa.tzeit();
 
-        // Format the result
+        // Format the results
         const hebrewDateStr = hDate.toString();
         const location_str = `${parseFloat(lat).toFixed(3)}°, ${parseFloat(lon).toFixed(3)}°`;
-
-        let holidayStr = '';
-        if (events && events.length > 0) {
-            holidayStr = '<div>Holidays: ' + events.map(ev => ev.render()).join(', ') + '</div>';
-        }
 
         document.getElementById('result').innerHTML = 
             `<div>Hebrew Date: ${hebrewDateStr}</div>` +
             `<div>Location: ${location_str}</div>` +
-            `<div>Sunrise: ${times.sunrise ? times.sunrise.toLocaleTimeString() : 'N/A'}</div>` +
-            `<div>Sunset: ${times.sunset ? times.sunset.toLocaleTimeString() : 'N/A'}</div>` +
-            holidayStr;
+            `<div class="zmanim-container">
+                <div>Alot HaShachar: ${formatTime(alotHaShachar)}</div>
+                <div>Misheyakir: ${formatTime(misheyakir)}</div>
+                <div>Sunrise: ${formatTime(sunrise)}</div>
+                <div>Sof Zman Shma: ${formatTime(sofZmanShma)}</div>
+                <div>Sof Zman Tfilla: ${formatTime(sofZmanTfilla)}</div>
+                <div>Chatzot: ${formatTime(chatzot)}</div>
+                <div>Mincha Gedola: ${formatTime(minchaGedola)}</div>
+                <div>Mincha Ketana: ${formatTime(minchaKetana)}</div>
+                <div>Plag HaMincha: ${formatTime(plagHaMincha)}</div>
+                <div>Sunset: ${formatTime(sunset)}</div>
+                <div>Tzeit HaKochavim: ${formatTime(tzeit)}</div>
+            </div>`;
 
     } catch (error) {
         console.error('Error:', error);
@@ -62,4 +79,8 @@ function calculateHebrewDate() {
         document.getElementById('debug').innerHTML = 
             `Debug info: ${error.stack}`;
     }
+}
+
+function formatTime(date) {
+    return date ? date.toLocaleTimeString() : 'N/A';
 }
