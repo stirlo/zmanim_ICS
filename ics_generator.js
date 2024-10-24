@@ -94,21 +94,17 @@ async function generateICSForCity(cityName, cityData) {
         const latitude = parseFloat(cityData.lat);
         const longitude = parseFloat(cityData.long);
 
-        console.log(`Creating location for ${cityName} with:`, {
-            lat: latitude,
-            long: longitude,
-            tzid: cityData.tzid,
-            cityName: cityData.cityName
-        });
-
-        const location = new hebcal.Location(
+        // Create GeoLocation object (v5.x style)
+        const geoLocation = new hebcal.GeoLocation(
+            cityData.cityName,
             latitude,
             longitude,
-            cityData.tzid,
-            cityData.cityName,
-            cityData.cc,
-            cityData.elevation || 0
+            cityData.elevation || 0,
+            cityData.tzid
         );
+
+        // Create location with GeoLocation
+        const location = new hebcal.Location(geoLocation, cityData.cc);
 
         const calendar = ical({
             name: `Jewish Calendar - ${cityName}`,
@@ -128,56 +124,53 @@ async function generateICSForCity(cityName, cityData) {
 
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
-            const zmanim = new hebcal.Zmanim({
-                latitude: location.latitude,
-                longitude: location.longitude,
-                date: hDate,
-                tzid: location.tzid
-            });
+
+            // Create Zmanim with GeoLocation (v5.x style)
+            const zmanim = new hebcal.Zmanim(geoLocation, hDate);
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
-                    time: zmanim.alotHaShachar(),
+                    time: zmanim.getAlotHaShachar(),
                     category: 'Dawn'
                 },
                 'Misheyakir': {
-                    time: zmanim.misheyakir(),
+                    time: zmanim.getMisheyakir(),
                     category: 'Morning'
                 },
                 'Sunrise (HaNetz)': {
-                    time: zmanim.sunrise(),
+                    time: zmanim.getSunrise(),
                     category: 'Morning'
                 },
                 'Sof Zman Shma GRA': {
-                    time: zmanim.sofZmanShma(),
+                    time: zmanim.getSofZmanShma(),
                     category: 'Morning'
                 },
                 'Sof Zman Tfilla GRA': {
-                    time: zmanim.sofZmanTfilla(),
+                    time: zmanim.getSofZmanTfilla(),
                     category: 'Morning'
                 },
                 'Chatzot (Midday)': {
-                    time: zmanim.chatzot(),
+                    time: zmanim.getChatzot(),
                     category: 'Midday'
                 },
                 'Mincha Gedola': {
-                    time: zmanim.minchaGedola(),
+                    time: zmanim.getMinchaGedola(),
                     category: 'Afternoon'
                 },
                 'Mincha Ketana': {
-                    time: zmanim.minchaKetana(),
+                    time: zmanim.getMinchaKetana(),
                     category: 'Afternoon'
                 },
                 'Plag HaMincha': {
-                    time: zmanim.plagHaMincha(),
+                    time: zmanim.getPlagHaMincha(),
                     category: 'Evening'
                 },
                 'Sunset (Shkia)': {
-                    time: zmanim.sunset(),
+                    time: zmanim.getSunset(),
                     category: 'Evening'
                 },
                 'Tzeit HaKochavim': {
-                    time: zmanim.tzeit(),
+                    time: zmanim.getTzeit(),
                     category: 'Night'
                 }
             };
@@ -199,6 +192,7 @@ async function generateICSForCity(cityName, cityData) {
             });
         }
 
+        // Generate holiday and special events
         const events = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
@@ -236,6 +230,7 @@ async function generateICSForCity(cityName, cityData) {
             });
         });
 
+        // Add candle lighting times
         const candleLightingEvents = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
