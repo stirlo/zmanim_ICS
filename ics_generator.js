@@ -94,17 +94,22 @@ async function generateICSForCity(cityName, cityData) {
         const latitude = parseFloat(cityData.lat);
         const longitude = parseFloat(cityData.long);
 
-        // Create GeoLocation object (v5.x style)
-        const geoLocation = new hebcal.GeoLocation(
-            cityData.cityName,
+        console.log('Creating location with:', {
             latitude,
             longitude,
-            cityData.elevation || 0,
-            cityData.tzid
-        );
+            tzid: cityData.tzid,
+            cityName: cityData.cityName
+        });
 
-        // Create location with GeoLocation
-        const location = new hebcal.Location(geoLocation, cityData.cc);
+        // Create Location directly with numeric values
+        const location = new hebcal.Location(
+            latitude,
+            longitude,
+            cityData.tzid,
+            cityData.cityName,
+            cityData.cc,
+            cityData.elevation || 0
+        );
 
         const calendar = ical({
             name: `Jewish Calendar - ${cityName}`,
@@ -125,8 +130,8 @@ async function generateICSForCity(cityName, cityData) {
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
 
-            // Create Zmanim with GeoLocation (v5.x style)
-            const zmanim = new hebcal.Zmanim(geoLocation, hDate);
+            // Create Zmanim with location
+            const zmanim = new hebcal.Zmanim(location, hDate);
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
@@ -192,7 +197,6 @@ async function generateICSForCity(cityName, cityData) {
             });
         }
 
-        // Generate holiday and special events
         const events = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
@@ -230,7 +234,6 @@ async function generateICSForCity(cityName, cityData) {
             });
         });
 
-        // Add candle lighting times
         const candleLightingEvents = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
