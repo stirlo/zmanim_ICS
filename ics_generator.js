@@ -104,14 +104,15 @@ async function generateICSForCity(cityName, cityData) {
         ttl: 60 * 60 * 24 // 24 hours
     });
 
-    const location = new hebcal.Location(
-        cityData.lat,
-        cityData.lon,
-        cityData.timezone,
-        cityName,
-        cityData.country,
-        cityData.elevation || 0
-    );
+    // Create location object with correct parameter structure
+    const location = new hebcal.Location({
+        name: cityName,
+        latitude: cityData.lat,
+        longitude: cityData.lon,
+        elevation: cityData.elevation || 0,
+        timezone: cityData.timezone,
+        cc: cityData.country
+    });
 
     // Generate events for the next year
     const now = new Date();
