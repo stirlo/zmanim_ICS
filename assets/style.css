@@ -130,6 +130,53 @@ input {
     margin-left: 15px;
 }
 
+.city-selector {
+    margin: 20px 0;
+}
+
+.city-selector select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--item-bg);
+    color: var(--text-color);
+    min-width: 200px;
+}
+
+.calendar-links {
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.calendar-item {
+    padding: 15px;
+    background-color: var(--item-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--highlight-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.calendar-link:hover {
+    opacity: 0.9;
+}
+
 /* Category-specific styles */
 .holiday.major {
     border-left: 4px solid var(--major-holiday-color);
@@ -153,7 +200,7 @@ input {
         border: 1px solid #666;
     }
 
-    input {
+    input, select {
         background-color: #2d2d2d;
         border: 1px solid #666;
     }
