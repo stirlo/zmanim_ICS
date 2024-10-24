@@ -12,6 +12,141 @@ function findMe() {
     }
 }
 
+function getWeekZmanim(location) {
+    const zmanimList = [];
+    const now = new Date();
+
+    // Get zmanim for next 7 days
+    for(let i = 0; i < 7; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() + i);
+        const hDate = new hebcal.HDate(date);
+        const zmanim = new hebcal.Zmanim(location, hDate, true);
+
+        zmanimList.push({
+            date: date,
+            hebrewDate: hDate.toString(),
+            zmanim: {
+                alotHaShachar: zmanim.alotHaShachar(),
+                misheyakir: zmanim.misheyakir(),
+                sunrise: zmanim.sunrise(),
+                sofZmanShma: zmanim.sofZmanShma(),
+                sofZmanTfilla: zmanim.sofZmanTfilla(),
+                chatzot: zmanim.chatzot(),
+                minchaGedola: zmanim.minchaGedola(),
+                minchaKetana: zmanim.minchaKetana(),
+                plagHaMincha: zmanim.plagHaMincha(),
+                sunset: zmanim.sunset(),
+                tzeit: zmanim.tzeit()
+            }
+        });
+    }
+    return zmanimList;
+}
+
+function displayZmanim(zmanimList) {
+    const container = document.getElementById('result');
+    let html = `<h2>Zmanim for the Next 7 Days</h2>`;
+
+    zmanimList.forEach((day, index) => {
+        const dateStr = day.date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        html += `
+            <div class="day-zmanim ${index === 0 ? 'today' : ''}">
+                <h3>${index === 0 ? 'Today - ' : ''}${dateStr}</h3>
+                <div class="hebrew-date">Hebrew Date: ${day.hebrewDate}</div>
+                <div class="zmanim-container">
+                    <div>Alot HaShachar: ${formatTime(day.zmanim.alotHaShachar)}</div>
+                    <div>Misheyakir: ${formatTime(day.zmanim.misheyakir)}</div>
+                    <div>Sunrise: ${formatTime(day.zmanim.sunrise)}</div>
+                    <div>Sof Zman Shma: ${formatTime(day.zmanim.sofZmanShma)}</div>
+                    <div>Sof Zman Tfilla: ${formatTime(day.zmanim.sofZmanTfilla)}</div>
+                    <div>Chatzot: ${formatTime(day.zmanim.chatzot)}</div>
+                    <div>Mincha Gedola: ${formatTime(day.zmanim.minchaGedola)}</div>
+                    <div>Mincha Ketana: ${formatTime(day.zmanim.minchaKetana)}</div>
+                    <div>Plag HaMincha: ${formatTime(day.zmanim.plagHaMincha)}</div>
+                    <div>Sunset: ${formatTime(day.zmanim.sunset)}</div>
+                    <div>Tzeit HaKochavim: ${formatTime(day.zmanim.tzeit)}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function getHolidayEvents(location) {
+    const now = new Date();
+    const year = now.getFullYear();
+
+    // Calculate one month ahead
+    const oneMonthAhead = new Date();
+    oneMonthAhead.setMonth(oneMonthAhead.getMonth() + 1);
+
+    const options = {
+        year: year,
+        isHebrewYear: false,
+        candlelighting: true,
+        location: location,
+        sedrot: true,
+        noMinorFast: true,
+        start: now,
+        end: oneMonthAhead,
+        mask: hebcal.flags.ROSH_CHODESH |
+              hebcal.flags.MAJOR_FAST |
+              hebcal.flags.MINOR_HOLIDAY |
+              hebcal.flags.MAJOR_HOLIDAY |
+              hebcal.flags.MODERN_HOLIDAY |
+              hebcal.flags.SPECIAL_SHABBAT |
+              hebcal.flags.ROSH_CHODESH |
+              hebcal.flags.SHABBAT_MEVARCHIM |
+              hebcal.flags.PARSHA_HASHAVUA
+    };
+
+    const events = hebcal.HebrewCalendar.calendar(options);
+
+    return events.map(ev => ({
+        title: ev.render('en'),
+        date: ev.getDate().greg(),
+        category: ev.getCategories()[0],
+        emoji: ev.getEmoji?.() || '',
+        flags: ev.getFlags()
+    }));
+}
+
+function displayEvents(events) {
+    const container = document.getElementById('events-container');
+    if (!container) {
+        console.error('Events container not found');
+        return;
+    }
+
+    let html = `<h2>Upcoming Jewish Holidays and Events</h2>`;
+
+    events.forEach(event => {
+        const dateStr = event.date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        html += `
+            <div class="event-item ${event.category}">
+                ${event.emoji ? `<span class="event-emoji">${event.emoji}</span>` : ''}
+                <span class="event-title">${event.title}</span>
+                <span class="event-date">${dateStr}</span>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 function calculateHebrewDate() {
     try {
         const lat = document.getElementById('latitude').value;
@@ -31,46 +166,9 @@ function calculateHebrewDate() {
             "UTC"
         );
 
-        // Get current date
-        const now = new Date();
-        const today = new hebcal.HDate(now);
-
-        // Create Zmanim calculator
-        const zmanim = new hebcal.Zmanim(location, today, true);
-
-        // Get zmanim
-        const sunrise = zmanim.sunrise();
-        const sunset = zmanim.sunset();
-        const alotHaShachar = zmanim.alotHaShachar();
-        const misheyakir = zmanim.misheyakir();
-        const sofZmanShma = zmanim.sofZmanShma();
-        const sofZmanTfilla = zmanim.sofZmanTfilla();
-        const chatzot = zmanim.chatzot();
-        const minchaGedola = zmanim.minchaGedola();
-        const minchaKetana = zmanim.minchaKetana();
-        const plagHaMincha = zmanim.plagHaMincha();
-        const tzeit = zmanim.tzeit();
-
-        // Format the results
-        const hebrewDateStr = today.toString();
-        const location_str = `${parseFloat(lat).toFixed(3)}°, ${parseFloat(lon).toFixed(3)}°`;
-
-        document.getElementById('result').innerHTML = 
-            `<div>Hebrew Date: ${hebrewDateStr}</div>` +
-            `<div>Location: ${location_str}</div>` +
-            `<div class="zmanim-container">
-                <div>Alot HaShachar: ${formatTime(alotHaShachar)}</div>
-                <div>Misheyakir: ${formatTime(misheyakir)}</div>
-                <div>Sunrise: ${formatTime(sunrise)}</div>
-                <div>Sof Zman Shma: ${formatTime(sofZmanShma)}</div>
-                <div>Sof Zman Tfilla: ${formatTime(sofZmanTfilla)}</div>
-                <div>Chatzot: ${formatTime(chatzot)}</div>
-                <div>Mincha Gedola: ${formatTime(minchaGedola)}</div>
-                <div>Mincha Ketana: ${formatTime(minchaKetana)}</div>
-                <div>Plag HaMincha: ${formatTime(plagHaMincha)}</div>
-                <div>Sunset: ${formatTime(sunset)}</div>
-                <div>Tzeit HaKochavim: ${formatTime(tzeit)}</div>
-            </div>`;
+        // Get and display week of zmanim
+        const weekZmanim = getWeekZmanim(location);
+        displayZmanim(weekZmanim);
 
         // Add holiday events
         const hebcalLocation = new hebcal.Location(
@@ -97,66 +195,4 @@ function calculateHebrewDate() {
 function formatTime(date) {
     if (!date) return 'N/A';
     return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
-}
-
-function getHolidayEvents(location) {
-    const now = new Date();
-    const year = now.getFullYear();
-
-    const options = {
-        year: year,
-        isHebrewYear: false,
-        candlelighting: true,
-        location: location,
-        sedrot: true,
-        noMinorFast: true,
-        mask: hebcal.flags.ROSH_CHODESH |
-              hebcal.flags.MAJOR_FAST |
-              hebcal.flags.MINOR_HOLIDAY |
-              hebcal.flags.MAJOR_HOLIDAY |
-              hebcal.flags.MODERN_HOLIDAY |
-              hebcal.flags.SPECIAL_SHABBAT |
-              hebcal.flags.ROSH_CHODESH |
-              hebcal.flags.SHABBAT_MEVARCHIM |
-              hebcal.flags.PARSHA_HASHAVUA
-    };
-
-    const events = hebcal.HebrewCalendar.calendar(options);
-
-    return events.map(ev => ({
-        title: ev.render('en'),
-        date: ev.getDate().greg(),
-        category: ev.getCategories()[0],
-        emoji: ev.getEmoji ? ev.getEmoji() : '✡️',
-        flags: ev.getFlags()
-    }));
-}
-
-function displayEvents(events) {
-    const container = document.getElementById('events-container');
-    if (!container) {
-        console.error('Events container not found');
-        return;
-    }
-    container.innerHTML = '';
-
-    events.forEach(event => {
-        const eventDiv = document.createElement('div');
-        eventDiv.className = `event-item ${event.category}`;
-
-        const dateStr = event.date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-
-        eventDiv.innerHTML = `
-            <span class="event-emoji">${event.emoji}</span>
-            <span class="event-title">${event.title}</span>
-            <span class="event-date">${dateStr}</span>
-        `;
-
-        container.appendChild(eventDiv);
-    });
 }
