@@ -255,3 +255,100 @@ async function generateICSForCity(cityName, cityData) {
 
     console.log(`Calendar generated for ${cityName}`);
 }
+async function generateIndexFile() {
+    const indexContent = `# Jewish Calendar Subscriptions
+
+Generated on: ${new Date().toISOString()}
+
+## Available Calendars
+
+${Object.keys(MAJOR_CITIES).map(cityName => {
+    const filename = cityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    return `- **${cityName}**
+  - [Subscribe (webcal)](webcal://raw.githubusercontent.com/stirlo/zmanim_ICS/main/calendars/${filename}.ics)
+  - [Direct Link](https://raw.githubusercontent.com/stirlo/zmanim_ICS/main/calendars/${filename}.ics)`;
+}).join('\n\n')}
+
+## Calendar Details
+
+Each calendar includes:
+- Daily Zmanim (prayer times)
+- Holidays and Special Days
+- Shabbat Times
+- Candle Lighting Times (18 minutes before sunset)
+- Havdalah Times (42 minutes after sunset)
+
+## How to Subscribe
+
+### iOS/macOS
+1. Click the "Subscribe (webcal)" link for your city
+2. Choose "Subscribe" when prompted
+3. Select update frequency (recommended: Daily)
+
+### Google Calendar
+1. Copy the "Direct Link" for your city
+2. In Google Calendar, click the + next to "Other calendars"
+3. Select "From URL"
+4. Paste the URL (change webcal:// to https://)
+5. Click "Add calendar"
+
+### Outlook
+1. Copy the "Direct Link" for your city
+2. In Outlook, go to "Add Calendar" → "From Internet"
+3. Paste the URL
+4. Click "OK"
+
+## Updates
+Calendars are automatically updated every 6 hours with the latest calculations.
+
+## Technical Details
+- Calculations use precise coordinates for each city
+- Times are adjusted for elevation where applicable
+- All calculations follow standard Halachic opinions
+- Havdalah times are calculated at 42 minutes after sunset
+- Candle lighting is set to 18 minutes before sunset
+`;
+
+    await fs.writeFile(path.join(__dirname, 'README.md'), indexContent);
+    console.log('Generated README.md with subscription information');
+}
+
+async function generateAllCalendars() {
+    console.log('Starting calendar generation...');
+    const startTime = Date.now();
+
+    try {
+        const calendarsDir = path.join(__dirname, 'calendars');
+        await fs.mkdir(calendarsDir, { recursive: true });
+
+        // Generate calendars in parallel
+        await Promise.all(
+            Object.entries(MAJOR_CITIES).map(([cityName, cityData]) => 
+                generateICSForCity(cityName, cityData)
+                    .catch(error => {
+                        console.error(`Error generating calendar for ${cityName}:`, error);
+                        throw error;
+                    })
+            )
+        );
+
+        const endTime = Date.now();
+        console.log(`Calendar generation completed successfully in ${(endTime - startTime) / 1000} seconds.`);
+
+        await generateIndexFile();
+    } catch (error) {
+        console.error('Error in calendar generation:', error);
+        process.exit(1);
+    }
+}
+
+// Run the generator if this file is being executed directly
+if (require.main === module) {
+    generateAllCalendars();
+}
+
+module.exports = {
+    generateAllCalendars,
+    generateICSForCity,
+    MAJOR_CITIES
+};
