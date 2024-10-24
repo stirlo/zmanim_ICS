@@ -1,6 +1,7 @@
 const ical = require('ical-generator');
 const hebcal = require('@hebcal/core');
 const fs = require('fs').promises;
+const path = require('path');
 
 const MAJOR_CITIES = {
     "Melbourne (St Kilda East)": {
@@ -54,6 +55,8 @@ const MAJOR_CITIES = {
 };
 
 async function generateICSForCity(cityName, cityData) {
+    console.log(`Generating calendar for ${cityName}...`);
+
     const calendar = ical({
         name: `Jewish Calendar - ${cityName}`,
         timezone: cityData.timezone,
@@ -76,27 +79,28 @@ async function generateICSForCity(cityName, cityData) {
         cityData.country
     );
 
-    // Generate zmanim events for the next 30 days
+    // Generate events for the next 6 months
     const now = new Date();
-    const thirtyDaysFromNow = new Date();
-    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    const sixMonthsFromNow = new Date();
+    sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
 
-    for (let d = new Date(now); d <= thirtyDaysFromNow; d.setDate(d.getDate() + 1)) {
+    // Generate daily zmanim events
+    for (let d = new Date(now); d <= sixMonthsFromNow; d.setDate(d.getDate() + 1)) {
         const hDate = new hebcal.HDate(d);
         const zmanim = new hebcal.Zmanim(location, hDate, true);
 
         const zmanimTimes = {
-            'Alot HaShachar': zmanim.alotHaShachar(),
+            'Alot HaShachar (Dawn)': zmanim.alotHaShachar(),
             'Misheyakir': zmanim.misheyakir(),
             'Sunrise': zmanim.sunrise(),
             'Sof Zman Shma': zmanim.sofZmanShma(),
             'Sof Zman Tfilla': zmanim.sofZmanTfilla(),
-            'Chatzot': zmanim.chatzot(),
+            'Chatzot (Midday)': zmanim.chatzot(),
             'Mincha Gedola': zmanim.minchaGedola(),
             'Mincha Ketana': zmanim.minchaKetana(),
             'Plag HaMincha': zmanim.plagHaMincha(),
             'Sunset': zmanim.sunset(),
-            'Tzeit HaKochavim': zmanim.tzeit()
+            'Tzeit HaKochavim (Nightfall)': zmanim.tzeit()
         };
 
         Object.entries(zmanimTimes).forEach(([name, time]) => {
@@ -120,10 +124,7 @@ async function generateICSForCity(cityName, cityData) {
         });
     }
 
-    // Generate holiday events for the next 6 months
-    const sixMonthsFromNow = new Date();
-    sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
-
+    // Generate holiday and special events
     const events = hebcal.HebrewCalendar.calendar({
         start: now,
         end: sixMonthsFromNow,
@@ -160,7 +161,7 @@ async function generateICSForCity(cityName, cityData) {
         });
     });
 
-    // Add candle lighting times if available
+    // Add candle lighting times
     const candleLightingEvents = hebcal.HebrewCalendar.calendar({
         start: now,
         end: sixMonthsFromNow,
@@ -191,21 +192,21 @@ async function generateICSForCity(cityName, cityData) {
     });
 
     // Save the calendar
-    const filename = `./calendars/${cityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`;
-    await fs.mkdir('./calendars', { recursive: true });
+    const filename = path.join(__dirname, 'calendars', `${cityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`);
+    await fs.mkdir(path.dirname(filename), { recursive: true });
     await fs.writeFile(filename, calendar.toString());
 
-    console.log(`Generated calendar for ${cityName}`);
+    console.log(`Calendar generated for ${cityName}`);
 }
 
 async function generateAllCalendars() {
     console.log('Starting calendar generation...');
 
     try {
-        await fs.mkdir('./calendars', { recursive: true });
+        const calendarsDir = path.join(__dirname, 'calendars');
+        await fs.mkdir(calendarsDir, { recursive: true });
 
         for (const [cityName, cityData] of Object.entries(MAJOR_CITIES)) {
-            console.log(`Processing ${cityName}...`);
             await generateICSForCity(cityName, cityData);
         }
 
