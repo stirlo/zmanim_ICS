@@ -1,65 +1,64 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --item-bg: #f5f5f5;
+    --border-color: #dddddd;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1a1a1a;
+        --text-color: #ffffff;
+        --item-bg: #2d2d2d;
+        --border-color: #404040;
+    }
+}
+
 body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
     font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f5f5f5;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.container {
-    text-align: center;
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.event-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: var(--item-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
 }
 
-.input-group {
-    margin: 1rem 0;
+.event-emoji {
+    font-size: 1.5em;
+    margin-right: 15px;
 }
 
-.input-group label {
-    display: inline-block;
-    width: 100px;
-    text-align: right;
-    margin-right: 10px;
+.event-title {
+    flex-grow: 1;
+    font-weight: bold;
 }
 
-.input-group input {
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 150px;
+.event-date {
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
-.button-group {
-    margin: 1.5rem 0;
+/* Category-specific styles */
+.holiday.major {
+    border-left: 4px solid #ff6b6b;
 }
 
-button {
-    padding: 10px 20px;
-    margin: 0 10px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.holiday.minor {
+    border-left: 4px solid #4ecdc4;
 }
 
-button:hover {
-    background-color: #0056b3;
+.candles {
+    border-left: 4px solid #ffe66d;
 }
 
-#result {
-    margin-top: 20px;
-    font-size: 1.2em;
-    padding: 1rem;
-    border-top: 1px solid #eee;
-}
-
-#debug {
-    margin-top: 10px;
-    font-size: 0.8em;
-    color: #666;
+.parashat {
+    border-left: 4px solid #95a5a6;
 }
