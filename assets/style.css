@@ -15,10 +15,45 @@
 }
 
 body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: Arial, sans-serif;
     transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    text-align: center;
+}
+
+.input-group {
+    margin: 10px 0;
+}
+
+.button-group {
+    margin: 20px 0;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 1.2em;
+    text-align: left;
+}
+
+.zmanim-container {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--item-bg);
 }
 
 .event-item {
@@ -61,4 +96,19 @@ body {
 
 .parashat {
     border-left: 4px solid #95a5a6;
+}
+
+@media (prefers-color-scheme: dark) {
+    button {
+        background-color: #404040;
+        color: #ffffff;
+        border: 1px solid #666;
+    }
+
+    input {
+        background-color: #2d2d2d;
+        color: #ffffff;
+        border: 1px solid #666;
+        padding: 5px;
+    }
 }
