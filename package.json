@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Jewish Calendar & Zmanim ICS Generator",
   "main": "ics-generator.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "generate": "node ics-generator.js",
     "test": "echo \"Error: no test specified\" && exit 1"
