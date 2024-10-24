@@ -1,15 +1,25 @@
 {
-  "name": "jewish-calendar-service",
+  "name": "jewish-calendar",
   "version": "1.0.0",
-  "description": "Jewish Calendar and Zmanim Service",
-  "main": "index.js",
+  "description": "Jewish Calendar and Zmanim ICS Generator",
+  "main": "ics-generator.js",
   "scripts": {
-    "start": "node server.js",
-    "generate-calendars": "node ics-generator.js"
+    "generate": "node ics-generator.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/jewish-calendar.git"
+  },
+  "keywords": [
+    "jewish",
+    "calendar",
+    "zmanim",
+    "ics"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
     "@hebcal/core": "^3.0.0",
-    "ical-generator": "^3.0.0",
-    "express": "^4.17.1"
+    "ical-generator": "^3.6.1"
   }
 }
