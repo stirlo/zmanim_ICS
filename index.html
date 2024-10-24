@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jewish Calendar & Zmanim Service</title>
-    <link rel="stylesheet" href="./assets/style.css">
-    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="https://unpkg.com/@hebcal/core@3.0.0/dist/bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Jewish Calendar & Zmanim Service</h1>
+        <div id="location-container">
+            <!-- City selector will be inserted here -->
+        </div>
 
         <div class="input-group">
             <label>Latitude: </label>
@@ -27,15 +30,14 @@
 
         <div id="result"></div>
         <div id="events-container"></div>
-        <div id="debug"></div>
+        <div id="subscription-container"></div>
     </div>
 
-    <script src="./assets/bundle.min.js"></script>
-    <script src="./assets/main.js"></script>
+    <script src="/assets/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             createCitySelector();
-            addCalendarLinks();
+            createSubscriptionGuide();
         });
     </script>
 </body>
