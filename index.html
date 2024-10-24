@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Hebrew Date & Zmanim Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewish Calendar & Zmanim Service</title>
     <link rel="stylesheet" href="./assets/style.css">
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
 </head>
 <body>
     <div class="container">
-        <h1>Hebrew Date & Zmanim Calculator</h1>
+        <h1>Jewish Calendar & Zmanim Service</h1>
 
         <div class="input-group">
             <label>Latitude: </label>
@@ -29,5 +32,11 @@
 
     <script src="./assets/bundle.min.js"></script>
     <script src="./assets/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            createCitySelector();
+            addCalendarLinks();
+        });
+    </script>
 </body>
 </html>
