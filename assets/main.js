@@ -23,7 +23,7 @@ function calculateHebrewDate() {
         }
 
         // Create location object
-        const location = new hebcal.GeoLocation(
+        const location = new Hebcal.GeoLocation(
             "Custom Location",
             parseFloat(lat),
             parseFloat(lon),
@@ -33,26 +33,26 @@ function calculateHebrewDate() {
 
         // Get current date
         const now = new Date();
-        const hDate = new hebcal.HDate(now);
+        const today = new Hebcal.HDate(now);
 
         // Create NOAA Calculator
-        const noaa = new hebcal.NOAACalculator(location, hDate);
+        const noaa = new Hebcal.NOAACalculator(location, today);
 
         // Get zmanim
         const sunrise = noaa.getSunrise();
         const sunset = noaa.getSunset();
-        const alotHaShachar = noaa.alotHaShachar();
-        const misheyakir = noaa.misheyakir();
-        const sofZmanShma = noaa.sofZmanShma();
-        const sofZmanTfilla = noaa.sofZmanTfilla();
-        const chatzot = noaa.chatzot();
-        const minchaGedola = noaa.minchaGedola();
-        const minchaKetana = noaa.minchaKetana();
-        const plagHaMincha = noaa.plagHaMincha();
-        const tzeit = noaa.tzeit();
+        const alotHaShachar = noaa.getBeginCivilTwilight();
+        const misheyakir = noaa.getSunriseOffsetByDegrees(11.5);
+        const sofZmanShma = noaa.getSunriseOffsetByDegrees(30);
+        const sofZmanTfilla = noaa.getSunriseOffsetByDegrees(36);
+        const chatzot = noaa.getSunTransit();
+        const minchaGedola = noaa.getSunriseOffsetByDegrees(37.5);
+        const minchaKetana = noaa.getSunriseOffsetByDegrees(49.5);
+        const plagHaMincha = noaa.getSunriseOffsetByDegrees(54.75);
+        const tzeit = noaa.getEndCivilTwilight();
 
         // Format the results
-        const hebrewDateStr = hDate.toString();
+        const hebrewDateStr = today.toString();
         const location_str = `${parseFloat(lat).toFixed(3)}°, ${parseFloat(lon).toFixed(3)}°`;
 
         document.getElementById('result').innerHTML = 
@@ -82,5 +82,6 @@ function calculateHebrewDate() {
 }
 
 function formatTime(date) {
-    return date ? date.toLocaleTimeString() : 'N/A';
+    if (!date) return 'N/A';
+    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
 }
