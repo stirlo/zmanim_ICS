@@ -15,63 +15,63 @@ const EVENT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 const MAJOR_CITIES = {
     "Melbourne (St Kilda East)": {
         lat: -37.8716, 
-        lon: 144.9989,
-        timezone: "Australia/Melbourne",
-        country: "AU",
+        long: 144.9989,  // Changed from lon to long
+        tzid: "Australia/Melbourne",  // Changed from timezone to tzid
+        cc: "AU",  // Changed from country to cc
         elevation: 35,
         cityName: "St Kilda East",
         region: "Victoria"
     },
     "Jerusalem": {
         lat: 31.778,
-        lon: 35.235,
-        timezone: "Asia/Jerusalem",
-        country: "IL",
+        long: 35.235,
+        tzid: "Asia/Jerusalem",
+        cc: "IL",
         elevation: 754,
         cityName: "Jerusalem",
         region: "Jerusalem District"
     },
     "Tel Aviv": {
         lat: 32.087,
-        lon: 34.791,
-        timezone: "Asia/Jerusalem",
-        country: "IL",
+        long: 34.791,
+        tzid: "Asia/Jerusalem",
+        cc: "IL",
         elevation: 5,
         cityName: "Tel Aviv",
         region: "Tel Aviv District"
     },
     "New York": {
         lat: 40.759,
-        lon: -73.979,
-        timezone: "America/New_York",
-        country: "US",
+        long: -73.979,
+        tzid: "America/New_York",
+        cc: "US",
         elevation: 10,
         cityName: "Manhattan",
         region: "New York"
     },
     "Los Angeles": {
         lat: 34.052,
-        lon: -118.243,
-        timezone: "America/Los_Angeles",
-        country: "US",
+        long: -118.243,
+        tzid: "America/Los_Angeles",
+        cc: "US",
         elevation: 71,
         cityName: "Los Angeles",
         region: "California"
     },
     "London": {
         lat: 51.507,
-        lon: -0.127,
-        timezone: "Europe/London",
-        country: "GB",
+        long: -0.127,
+        tzid: "Europe/London",
+        cc: "GB",
         elevation: 11,
         cityName: "London",
         region: "England"
     },
     "Sydney": {
         lat: -33.868,
-        lon: 151.209,
-        timezone: "Australia/Sydney",
-        country: "AU",
+        long: 151.209,
+        tzid: "Australia/Sydney",
+        cc: "AU",
         elevation: 39,
         cityName: "Sydney",
         region: "New South Wales"
@@ -94,7 +94,7 @@ async function generateICSForCity(cityName, cityData) {
     try {
         // Convert coordinates to numbers and validate
         const latitude = parseFloat(cityData.lat);
-        const longitude = parseFloat(cityData.lon);
+        const longitude = parseFloat(cityData.long);
 
         console.log(`Debug - Coordinates for ${cityName}:`, {
             latitude: latitude,
@@ -105,7 +105,7 @@ async function generateICSForCity(cityName, cityData) {
 
         const calendar = ical({
             name: `Jewish Calendar - ${cityName}`,
-            timezone: cityData.timezone,
+            timezone: cityData.tzid,
             prodId: {
                 company: 'Jewish Calendar Service',
                 product: `Zmanim-Calendar-${cityName.replace(/\s+/g, '-')}`,
@@ -115,27 +115,27 @@ async function generateICSForCity(cityName, cityData) {
             ttl: 60 * 60 * 24
         });
 
+        // Create the Location object using v4 format
+        const location = new hebcal.Location({
+            lat: latitude,
+            long: longitude,
+            tzid: cityData.tzid,
+            name: cityName,
+            cc: cityData.cc,
+            elevation: cityData.elevation || 0
+        });
+
         // Generate events for the next year
         const now = new Date();
         const oneYearFromNow = new Date();
         oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
-        // Create the Location object for holiday calculations
-        const location = new hebcal.Location(
-            latitude,
-            longitude,
-            cityData.timezone,
-            cityName,
-            cityData.country,
-            cityData.elevation || 0
-        );
-
         // Generate daily zmanim events
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
 
-            // Create Zmanim instance with direct coordinates
-            const zmanim = new hebcal.Zmanim(d, latitude, longitude, cityData.elevation || 0);
+            // Create Zmanim instance using v4 format
+            const zmanim = new hebcal.Zmanim(location, hDate);
 
             // Debug the first zmanim calculation
             if (d.getTime() === now.getTime()) {
