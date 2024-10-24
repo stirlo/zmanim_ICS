@@ -1,7 +1,12 @@
-const ical = require('ical-generator');
-const hebcal = require('@hebcal/core');
-const fs = require('fs').promises;
-const path = require('path');
+import ical from 'ical-generator';
+import * as hebcal from '@hebcal/core';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const REPO_PATH = 'stirlo/zmanim_ICS';
 const EVENT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
@@ -83,10 +88,11 @@ function formatTimeDescription(date, hebrewDate, cityName) {
 Hebrew Date: ${hebrewDate.toString()}
 Location: ${cityName}`;
 }
+
 async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
-    const calendar = ical({
+    const calendar = ical.default({
         name: `Jewish Calendar - ${cityName}`,
         timezone: cityData.timezone,
         prodId: {
@@ -180,6 +186,7 @@ async function generateICSForCity(cityName, cityData) {
             }
         });
     }
+
     // Generate holiday and special events
     const events = hebcal.HebrewCalendar.calendar({
         start: now,
@@ -255,6 +262,7 @@ async function generateICSForCity(cityName, cityData) {
 
     console.log(`Calendar generated for ${cityName}`);
 }
+
 async function generateIndexFile() {
     const indexContent = `# Jewish Calendar Subscriptions
 
@@ -342,12 +350,12 @@ async function generateAllCalendars() {
     }
 }
 
-// Run the generator if this file is being executed directly
-if (require.main === module) {
+// Run the generator if this is the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
     generateAllCalendars();
 }
 
-module.exports = {
+export {
     generateAllCalendars,
     generateICSForCity,
     MAJOR_CITIES
