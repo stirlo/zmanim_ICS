@@ -1,15 +1,109 @@
+const MAJOR_CITIES = {
+    "Melbourne (St Kilda East)": {
+        lat: -37.8716, 
+        lon: 144.9989,
+        timezone: "Australia/Melbourne",
+        country: "AU"
+    },
+    "Jerusalem": {
+        lat: 31.778,
+        lon: 35.235,
+        timezone: "Asia/Jerusalem",
+        country: "IL"
+    },
+    "Tel Aviv": {
+        lat: 32.087,
+        lon: 34.791,
+        timezone: "Asia/Jerusalem",
+        country: "IL"
+    },
+    "New York": {
+        lat: 40.759,
+        lon: -73.979,
+        timezone: "America/New_York",
+        country: "US"
+    },
+    "Los Angeles": {
+        lat: 34.052,
+        lon: -118.243,
+        timezone: "America/Los_Angeles",
+        country: "US"
+    },
+    "Hong Kong": {
+        lat: 22.302,
+        lon: 114.177,
+        timezone: "Asia/Hong_Kong",
+        country: "HK"
+    },
+    "Sydney": {
+        lat: -33.868,
+        lon: 151.209,
+        timezone: "Australia/Sydney",
+        country: "AU"
+    },
+    "London": {
+        lat: 51.507,
+        lon: -0.127,
+        timezone: "Europe/London",
+        country: "GB"
+    }
+};
+
+function createCitySelector() {
+    const container = document.querySelector('.input-group').parentElement;
+    const selectorDiv = document.createElement('div');
+    selectorDiv.className = 'city-selector';
+
+    const html = `
+        <div class="input-group">
+            <label>Select City: </label>
+            <select id="citySelect" onchange="handleCityChange()">
+                <option value="">Custom Location</option>
+                ${Object.keys(MAJOR_CITIES).map(city => 
+                    `<option value="${city}">${city}</option>`
+                ).join('')}
+            </select>
+        </div>
+    `;
+
+    selectorDiv.innerHTML = html;
+    container.insertBefore(selectorDiv, container.firstChild);
+}
+
+function handleCityChange() {
+    const citySelect = document.getElementById('citySelect');
+    const selectedCity = citySelect.value;
+
+    if (selectedCity) {
+        const city = MAJOR_CITIES[selectedCity];
+        document.getElementById('latitude').value = city.lat.toFixed(3);
+        document.getElementById('longitude').value = city.lon.toFixed(3);
+        calculateHebrewDate();
+    }
+}
+
 function findMe() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
             document.getElementById('latitude').value = position.coords.latitude.toFixed(3);
             document.getElementById('longitude').value = position.coords.longitude.toFixed(3);
-            calculateHebrewDate(); // Auto-calculate after finding location
+            document.getElementById('citySelect').value = ''; // Reset city selector to custom
+            calculateHebrewDate();
         }, error => {
             alert("Error getting location: " + error.message);
         });
     } else {
         alert("Geolocation is not supported by this browser.");
     }
+}
+
+function formatTime(date) {
+    if (!date) return 'N/A';
+    return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
 }
 
 function getWeekZmanim(location) {
@@ -58,7 +152,7 @@ function displayZmanim(zmanimList) {
         html += `
             <div class="day-zmanim ${index === 0 ? 'today' : ''}">
                 <h3>${index === 0 ? 'Today - ' : ''}${dateStr}</h3>
-                <div class="hebrew-date">Hebrew Date: ${day.hebrewDate}</div>
+                <div class="hebrew-date">${day.hebrewDate}</div>
                 <div class="zmanim-container">
                     <div>Alot HaShachar: ${formatTime(day.zmanim.alotHaShachar)}</div>
                     <div>Misheyakir: ${formatTime(day.zmanim.misheyakir)}</div>
@@ -79,23 +173,69 @@ function displayZmanim(zmanimList) {
     container.innerHTML = html;
 }
 
+function calculateHebrewDate() {
+    try {
+        const lat = document.getElementById('latitude').value;
+        const lon = document.getElementById('longitude').value;
+        const citySelect = document.getElementById('citySelect');
+        const selectedCity = citySelect.value;
+
+        if (!lat || !lon) {
+            alert("Please enter latitude and longitude");
+            return;
+        }
+
+        // Get timezone from selected city or use local timezone
+        const timezone = selectedCity ? 
+            MAJOR_CITIES[selectedCity].timezone : 
+            Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Create location object
+        const location = new hebcal.GeoLocation(
+            selectedCity || "Custom Location",
+            parseFloat(lat),
+            parseFloat(lon),
+            0,
+            timezone
+        );
+
+        // Get and display week of zmanim
+        const weekZmanim = getWeekZmanim(location);
+        displayZmanim(weekZmanim);
+
+        // Add holiday events
+        const hebcalLocation = new hebcal.Location(
+            parseFloat(lat),
+            parseFloat(lon),
+            false,
+            timezone,
+            selectedCity || "Custom Location",
+            selectedCity ? MAJOR_CITIES[selectedCity].country : ""
+        );
+
+        const events = getHolidayEvents(hebcalLocation);
+        displayEvents(events);
+
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('result').innerHTML = 
+            `<div>Error calculating: ${error.message}</div>`;
+        document.getElementById('debug').innerHTML = 
+            `Debug info: ${error.stack}`;
+    }
+}
+
 function getHolidayEvents(location) {
     const now = new Date();
-    const year = now.getFullYear();
-
-    // Calculate one month ahead
     const oneMonthAhead = new Date();
     oneMonthAhead.setMonth(oneMonthAhead.getMonth() + 1);
 
-    const options = {
-        year: year,
-        isHebrewYear: false,
-        candlelighting: true,
-        location: location,
-        sedrot: true,
-        noMinorFast: true,
+    const events = hebcal.HebrewCalendar.calendar({
         start: now,
         end: oneMonthAhead,
+        location: location,
+        candlelighting: true,
+        sedrot: true,
         mask: hebcal.flags.ROSH_CHODESH |
               hebcal.flags.MAJOR_FAST |
               hebcal.flags.MINOR_HOLIDAY |
@@ -105,9 +245,7 @@ function getHolidayEvents(location) {
               hebcal.flags.ROSH_CHODESH |
               hebcal.flags.SHABBAT_MEVARCHIM |
               hebcal.flags.PARSHA_HASHAVUA
-    };
-
-    const events = hebcal.HebrewCalendar.calendar(options);
+    });
 
     return events.map(ev => ({
         title: ev.render('en'),
@@ -147,52 +285,23 @@ function displayEvents(events) {
     container.innerHTML = html;
 }
 
-function calculateHebrewDate() {
-    try {
-        const lat = document.getElementById('latitude').value;
-        const lon = document.getElementById('longitude').value;
+function addCalendarLinks() {
+    const container = document.createElement('div');
+    container.className = 'calendar-links';
+    container.innerHTML = `
+        <h3>Subscribe to Calendars</h3>
+        <div class="calendar-grid">
+            ${Object.keys(MAJOR_CITIES).map(city => `
+                <div class="calendar-item">
+                    <h4>${city}</h4>
+                    <a href="calendars/${city.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics" 
+                       class="calendar-link">
+                       Subscribe to ${city} Calendar
+                    </a>
+                </div>
+            `).join('')}
+        </div>
+    `;
 
-        if (!lat || !lon) {
-            alert("Please enter latitude and longitude");
-            return;
-        }
-
-        // Create location object
-        const location = new hebcal.GeoLocation(
-            "Custom Location",
-            parseFloat(lat),
-            parseFloat(lon),
-            0,
-            "UTC"
-        );
-
-        // Get and display week of zmanim
-        const weekZmanim = getWeekZmanim(location);
-        displayZmanim(weekZmanim);
-
-        // Add holiday events
-        const hebcalLocation = new hebcal.Location(
-            parseFloat(lat),
-            parseFloat(lon),
-            false,
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-            "Custom Location",
-            ""
-        );
-
-        const events = getHolidayEvents(hebcalLocation);
-        displayEvents(events);
-
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('result').innerHTML = 
-            `<div>Error calculating: ${error.message}</div>`;
-        document.getElementById('debug').innerHTML = 
-            `Debug info: ${error.stack}`;
-    }
-}
-
-function formatTime(date) {
-    if (!date) return 'N/A';
-    return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: true});
+    document.querySelector('.container').appendChild(container);
 }
