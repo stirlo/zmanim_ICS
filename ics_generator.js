@@ -1,4 +1,3 @@
-
 import * as ical from 'ical-generator';
 import * as hebcal from '@hebcal/core';
 import { promises as fs } from 'fs';
@@ -93,7 +92,7 @@ Location: ${cityName}`;
 async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
-    const calendar = ical.default({
+    const calendar = ical.createCalendar({
         name: `Jewish Calendar - ${cityName}`,
         timezone: cityData.timezone,
         prodId: {
@@ -106,12 +105,12 @@ async function generateICSForCity(cityName, cityData) {
     });
 
     const location = new hebcal.Location(
-        cityName,
         cityData.lat,
         cityData.lon,
-        cityData.elevation || 0,
         cityData.timezone,
-        cityData.country
+        cityName,
+        cityData.country,
+        cityData.elevation || 0
     );
 
     // Generate events for the next year
@@ -274,8 +273,8 @@ Generated on: ${new Date().toISOString()}
 ${Object.keys(MAJOR_CITIES).map(cityName => {
     const filename = cityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
     return `- **${cityName}**
-  - [Subscribe (webcal)](webcal://raw.githubusercontent.com/stirlo/zmanim_ICS/main/calendars/${filename}.ics)
-  - [Direct Link](https://raw.githubusercontent.com/stirlo/zmanim_ICS/main/calendars/${filename}.ics)`;
+  - [Subscribe (webcal)](webcal://raw.githubusercontent.com/${REPO_PATH}/main/calendars/${filename}.ics)
+  - [Direct Link](https://raw.githubusercontent.com/${REPO_PATH}/main/calendars/${filename}.ics)`;
 }).join('\n\n')}
 
 ## Calendar Details
