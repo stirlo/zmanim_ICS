@@ -135,47 +135,47 @@ async function generateICSForCity(cityName, cityData) {
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
-                    time: zmanim.getAlotHaShachar(),
+                    time: zmanim.alot(),
                     category: 'Dawn'
                 },
                 'Misheyakir': {
-                    time: zmanim.getMisheyakir(),
+                    time: zmanim.misheyakir(),
                     category: 'Morning'
                 },
                 'Sunrise (HaNetz)': {
-                    time: zmanim.getSunrise(),
+                    time: zmanim.sunrise(),
                     category: 'Morning'
                 },
                 'Sof Zman Shma GRA': {
-                    time: zmanim.getSofZmanShma(),
+                    time: zmanim.sofZmanShma(),
                     category: 'Morning'
                 },
                 'Sof Zman Tfilla GRA': {
-                    time: zmanim.getSofZmanTfilla(),
+                    time: zmanim.sofZmanTfilla(),
                     category: 'Morning'
                 },
                 'Chatzot (Midday)': {
-                    time: zmanim.getChatzot(),
+                    time: zmanim.chatzot(),
                     category: 'Midday'
                 },
                 'Mincha Gedola': {
-                    time: zmanim.getMinchaGedola(),
+                    time: zmanim.minchaGedola(),
                     category: 'Afternoon'
                 },
                 'Mincha Ketana': {
-                    time: zmanim.getMinchaKetana(),
+                    time: zmanim.minchaKetana(),
                     category: 'Afternoon'
                 },
                 'Plag HaMincha': {
-                    time: zmanim.getPlagHaMincha(),
+                    time: zmanim.plagHaMincha(),
                     category: 'Evening'
                 },
                 'Sunset (Shkia)': {
-                    time: zmanim.getSunset(),
+                    time: zmanim.sunset(),
                     category: 'Evening'
                 },
                 'Tzeit HaKochavim': {
-                    time: zmanim.getTzeit(),
+                    time: zmanim.tzeit(),
                     category: 'Night'
                 }
             };
@@ -217,8 +217,8 @@ async function generateICSForCity(cityName, cityData) {
         events.forEach(ev => {
             const startDate = ev.getDate().greg();
             const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
-            const emoji = ev.getEmoji?.() || '';
-            const categories = ev.getCategories();
+            const emoji = ev.emoji || '';
+            const categories = ev.categories || [];
 
             calendar.createEvent({
                 start: startDate,
@@ -229,7 +229,7 @@ async function generateICSForCity(cityName, cityData) {
                 location: `${cityName}, ${cityData.region}`,
                 categories: categories,
                 status: 'CONFIRMED',
-                busystatus: ev.getFlags() & hebcal.flags.MAJOR_HOLIDAY ? 'FREE' : 'BUSY',
+                busystatus: ev.flags & hebcal.flags.MAJOR_HOLIDAY ? 'FREE' : 'BUSY',
                 transparency: 'TRANSPARENT'
             });
         });
@@ -245,9 +245,9 @@ async function generateICSForCity(cityName, cityData) {
         });
 
         candleLightingEvents.forEach(ev => {
-            if (ev.getFlags() & (hebcal.flags.LIGHT_CANDLES | hebcal.flags.HAVDALAH)) {
+            if (ev.flags & (hebcal.flags.LIGHT_CANDLES | hebcal.flags.HAVDALAH)) {
                 const date = ev.getDate().greg();
-                const emoji = ev.getFlags() & hebcal.flags.LIGHT_CANDLES ? '🕯️' : '✨';
+                const emoji = ev.flags & hebcal.flags.LIGHT_CANDLES ? '🕯️' : '✨';
 
                 calendar.createEvent({
                     start: date,
