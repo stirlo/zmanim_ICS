@@ -11,7 +11,6 @@ const __dirname = dirname(__filename);
 const REPO_PATH = 'stirlo/zmanim_ICS';
 const EVENT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-// Define major Jewish communities with precise coordinates
 const MAJOR_CITIES = {
     "Melbourne (St Kilda East)": {
         lat: -37.8716, 
@@ -92,7 +91,6 @@ async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
     try {
-        // Convert coordinates to numbers
         const latitude = parseFloat(cityData.lat);
         const longitude = parseFloat(cityData.long);
 
@@ -103,7 +101,6 @@ async function generateICSForCity(cityName, cityData) {
             cityName: cityData.cityName
         });
 
-        // Create location object
         const location = new hebcal.Location(
             latitude,
             longitude,
@@ -125,23 +122,18 @@ async function generateICSForCity(cityName, cityData) {
             ttl: 60 * 60 * 24
         });
 
-        // Generate events for the next year
         const now = new Date();
         const oneYearFromNow = new Date();
         oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
-        // Generate daily zmanim events
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
-            // Create Zmanim instance with the location's latitude and longitude directly
             const zmanim = new hebcal.Zmanim({
                 latitude: location.latitude,
                 longitude: location.longitude,
                 date: hDate,
                 tzid: location.tzid
             });
-
-          
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
@@ -189,6 +181,7 @@ async function generateICSForCity(cityName, cityData) {
                     category: 'Night'
                 }
             };
+
             Object.entries(zmanimTimes).forEach(([name, data]) => {
                 if (data.time) {
                     calendar.createEvent({
@@ -206,7 +199,6 @@ async function generateICSForCity(cityName, cityData) {
             });
         }
 
-        // Generate holiday and special events
         const events = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
@@ -244,7 +236,6 @@ async function generateICSForCity(cityName, cityData) {
             });
         });
 
-        // Add candle lighting times
         const candleLightingEvents = hebcal.HebrewCalendar.calendar({
             start: now,
             end: oneYearFromNow,
@@ -274,7 +265,6 @@ async function generateICSForCity(cityName, cityData) {
             }
         });
 
-        // Save the calendar
         const filename = path.join(__dirname, 'calendars', `${cityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`);
         await fs.mkdir(path.dirname(filename), { recursive: true });
         await fs.writeFile(filename, calendar.toString());
@@ -352,7 +342,6 @@ async function generateAllCalendars() {
         const calendarsDir = path.join(__dirname, 'calendars');
         await fs.mkdir(calendarsDir, { recursive: true });
 
-        // Generate calendars in parallel
         await Promise.all(
             Object.entries(MAJOR_CITIES).map(([cityName, cityData]) => 
                 generateICSForCity(cityName, cityData)
@@ -373,7 +362,6 @@ async function generateAllCalendars() {
     }
 }
 
-// Run the generator if this is the main module
 if (import.meta.url === `file://${process.argv[1]}`) {
     generateAllCalendars();
 }
