@@ -1,25 +1,31 @@
 {
-  "name": "jewish-calendar",
+  "name": "zmanim-ics",
   "version": "1.0.0",
-  "description": "Jewish Calendar and Zmanim ICS Generator",
+  "description": "Jewish Calendar & Zmanim ICS Generator",
   "main": "ics-generator.js",
   "scripts": {
-    "generate": "node ics-generator.js"
+    "generate": "node ics-generator.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/jewish-calendar.git"
+    "url": "git+https://github.com/stirlo/zmanim_ICS.git"
   },
   "keywords": [
     "jewish",
     "calendar",
     "zmanim",
-    "ics"
+    "ics",
+    "hebcal"
   ],
-  "author": "Stirling Campbell",
+  "author": "stirlo",
   "license": "MPL",
+  "bugs": {
+    "url": "https://github.com/stirlo/zmanim_ICS/issues"
+  },
+  "homepage": "https://github.com/stirlo/zmanim_ICS#readme",
   "dependencies": {
-    "@hebcal/core": "^3.0.0",
+    "@hebcal/core": "^3.67.0",
     "ical-generator": "^3.6.1"
   }
 }
