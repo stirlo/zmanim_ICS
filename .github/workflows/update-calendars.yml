@@ -26,7 +26,10 @@ jobs:
     - name: Generate calendars
       env:
         GITHUB_REPOSITORY: 'stirlo/zmanim_ICS'
-      run: node ics-generator.js
+      run: |
+        pwd
+        ls -la
+        node ./ics-generator.js
 
     - name: Commit and push if changed
       run: |
