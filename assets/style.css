@@ -3,6 +3,11 @@
     --text-color: #000000;
     --item-bg: #f5f5f5;
     --border-color: #dddddd;
+    --highlight-color: #4ecdc4;
+    --major-holiday-color: #ff6b6b;
+    --minor-holiday-color: #4ecdc4;
+    --candles-color: #ffe66d;
+    --parsha-color: #95a5a6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +33,10 @@ body {
     text-align: center;
 }
 
+h1, h2, h3 {
+    color: var(--text-color);
+}
+
 .input-group {
     margin: 10px 0;
 }
@@ -40,20 +49,56 @@ button {
     padding: 10px 20px;
     margin: 0 10px;
     cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--item-bg);
+    color: var(--text-color);
+    transition: all 0.3s ease;
 }
 
-#result {
-    margin-top: 20px;
-    font-size: 1.2em;
-    text-align: left;
+button:hover {
+    background-color: var(--highlight-color);
+    color: white;
+}
+
+input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--item-bg);
+    color: var(--text-color);
+}
+
+.day-zmanim {
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    background-color: var(--item-bg);
+}
+
+.today {
+    border-left: 4px solid var(--highlight-color);
+}
+
+.day-zmanim h3 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.hebrew-date {
+    margin: 10px 0;
+    font-weight: bold;
 }
 
 .zmanim-container {
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background-color: var(--item-bg);
+    text-align: left;
+    padding: 15px;
+}
+
+.zmanim-container div {
+    margin: 8px 0;
 }
 
 .event-item {
@@ -64,11 +109,14 @@ button {
     background-color: var(--item-bg);
     border-radius: 8px;
     border: 1px solid var(--border-color);
+    text-align: left;
 }
 
 .event-emoji {
     font-size: 1.5em;
     margin-right: 15px;
+    min-width: 40px;
+    text-align: center;
 }
 
 .event-title {
@@ -79,36 +127,34 @@ button {
 .event-date {
     color: var(--text-color);
     opacity: 0.8;
+    margin-left: 15px;
 }
 
 /* Category-specific styles */
 .holiday.major {
-    border-left: 4px solid #ff6b6b;
+    border-left: 4px solid var(--major-holiday-color);
 }
 
 .holiday.minor {
-    border-left: 4px solid #4ecdc4;
+    border-left: 4px solid var(--minor-holiday-color);
 }
 
 .candles {
-    border-left: 4px solid #ffe66d;
+    border-left: 4px solid var(--candles-color);
 }
 
 .parashat {
-    border-left: 4px solid #95a5a6;
+    border-left: 4px solid var(--parsha-color);
 }
 
 @media (prefers-color-scheme: dark) {
     button {
         background-color: #404040;
-        color: #ffffff;
         border: 1px solid #666;
     }
 
     input {
         background-color: #2d2d2d;
-        color: #ffffff;
         border: 1px solid #666;
-        padding: 5px;
     }
 }
