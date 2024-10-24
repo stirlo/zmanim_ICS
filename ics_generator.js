@@ -78,7 +78,6 @@ const MAJOR_CITIES = {
     }
 };
 
-// Helper function to format time descriptions
 function formatTimeDescription(date, hebrewDate, cityName) {
     return `Time: ${date.toLocaleTimeString('en-US', { 
         hour: '2-digit', 
@@ -92,46 +91,62 @@ Location: ${cityName}`;
 async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
-    const calendar = ical({
-        name: `Jewish Calendar - ${cityName}`,
-        timezone: cityData.timezone,
-        prodId: {
-            company: 'Jewish Calendar Service',
-            product: `Zmanim-Calendar-${cityName.replace(/\s+/g, '-')}`,
-            language: 'EN'
-        },
-        method: 'PUBLISH',
-        ttl: 60 * 60 * 24 // 24 hours
-    });
-
     try {
-        // Debug log to check values
-        console.log(`Creating location for ${cityName} with:`, {
-            lat: cityData.lat,
-            lon: cityData.lon,
-            timezone: cityData.timezone,
-            cityName: cityData.cityName
+        // Convert coordinates to numbers and validate
+        const latitude = parseFloat(cityData.lat);
+        const longitude = parseFloat(cityData.lon);
+
+        console.log(`Debug - Coordinates for ${cityName}:`, {
+            latitude: latitude,
+            longitude: longitude,
+            type: typeof latitude,
+            value: latitude
         });
 
-        // Create location object with numeric lat/lon first, then other parameters
-        const location = new hebcal.Location(
-            Number(cityData.lat),    // latitude must be first and as number
-            Number(cityData.lon),    // longitude must be second and as number
-            cityData.timezone,       // timezone
-            cityName,                // name
-            cityData.country,        // country code
-            cityData.elevation || 0  // elevation
-        );
+        const calendar = ical({
+            name: `Jewish Calendar - ${cityName}`,
+            timezone: cityData.timezone,
+            prodId: {
+                company: 'Jewish Calendar Service',
+                product: `Zmanim-Calendar-${cityName.replace(/\s+/g, '-')}`,
+                language: 'EN'
+            },
+            method: 'PUBLISH',
+            ttl: 60 * 60 * 24
+        });
 
         // Generate events for the next year
         const now = new Date();
         const oneYearFromNow = new Date();
         oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
+        // Create the Location object for holiday calculations
+        const location = new hebcal.Location(
+            latitude,
+            longitude,
+            cityData.timezone,
+            cityName,
+            cityData.country,
+            cityData.elevation || 0
+        );
+
         // Generate daily zmanim events
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
-            const zmanim = new hebcal.Zmanim(location, hDate, true);
+
+            // Create Zmanim instance with direct coordinates
+            const zmanim = new hebcal.Zmanim(d, latitude, longitude, cityData.elevation || 0);
+
+            // Debug the first zmanim calculation
+            if (d.getTime() === now.getTime()) {
+                console.log(`First zmanim calculation for ${cityName}:`, {
+                    date: d,
+                    latitude: latitude,
+                    longitude: longitude,
+                    sunrise: zmanim.sunrise(),
+                    sunset: zmanim.sunset()
+                });
+            }
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
@@ -217,7 +232,7 @@ async function generateICSForCity(cityName, cityData) {
 
         events.forEach(ev => {
             const startDate = ev.getDate().greg();
-            const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Full day events
+            const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
             const emoji = ev.getEmoji?.() || '';
             const categories = ev.getCategories();
 
