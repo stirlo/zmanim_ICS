@@ -103,7 +103,7 @@ async function generateICSForCity(cityName, cityData) {
             cityName: cityData.cityName
         });
 
-        // Create location object with direct parameters (not as an object)
+        // Create location object
         const location = new hebcal.Location(
             latitude,
             longitude,
@@ -133,7 +133,15 @@ async function generateICSForCity(cityName, cityData) {
         // Generate daily zmanim events
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
-            const zmanim = new hebcal.Zmanim(location, hDate);
+            // Create Zmanim instance with the location's latitude and longitude directly
+            const zmanim = new hebcal.Zmanim({
+                latitude: location.latitude,
+                longitude: location.longitude,
+                date: hDate,
+                tzid: location.tzid
+            });
+
+          
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
