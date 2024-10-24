@@ -1,4 +1,4 @@
-import * as ical from 'ical-generator';
+import ical from 'ical-generator';
 import * as hebcal from '@hebcal/core';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -92,7 +92,7 @@ Location: ${cityName}`;
 async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
-    const calendar = ical.createCalendar({
+    const calendar = ical({
         name: `Jewish Calendar - ${cityName}`,
         timezone: cityData.timezone,
         prodId: {
