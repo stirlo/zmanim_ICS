@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/stirlo/zmanim_ICS#readme",
   "dependencies": {
-    "@hebcal/core": "^4.4.0",
+    "@hebcal/core": "^5.5.2",
     "ical-generator": "^6.0.1"
   }
 }
