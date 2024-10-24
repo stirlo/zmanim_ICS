@@ -1,35 +1,36 @@
-name: Update ICS Calendars
+name: Update Calendars
 
 on:
   schedule:
     - cron: '0 */6 * * *'  # Run every 6 hours
-  workflow_dispatch:  # Allow manual triggers
+  workflow_dispatch:  # Allow manual trigger
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   update-calendars:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - uses: actions/checkout@v3
 
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-js-version: '18'
 
     - name: Install dependencies
       run: npm install
 
     - name: Generate calendars
-      run: npm run generate
+      env:
+        GITHUB_REPOSITORY: 'stirlo/zmanim_ICS'
+      run: node ics-generator.js
 
     - name: Commit and push if changed
       run: |
-        git config --global user.name 'GitHub Action'
-        git config --global user.email 'action@github.com'
-        git add calendars/
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update ICS calendars [skip ci]" && git push)
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add -A
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update calendars $(date +'%Y-%m-%d %H:%M:%S')" && git push)
