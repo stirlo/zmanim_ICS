@@ -1,4 +1,5 @@
-import ical from 'ical-generator';
+
+import * as ical from 'ical-generator';
 import * as hebcal from '@hebcal/core';
 import { promises as fs } from 'fs';
 import path from 'path';
