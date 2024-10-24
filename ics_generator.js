@@ -104,164 +104,177 @@ async function generateICSForCity(cityName, cityData) {
         ttl: 60 * 60 * 24 // 24 hours
     });
 
-    // Create location object with positional parameters
-    const location = new hebcal.Location(
-        cityName,
-        cityData.lat,
-        cityData.lon,
-        cityData.timezone,
-        cityData.country,
-        cityData.elevation || 0
-    );
+    try {
+        // Debug log to check values
+        console.log(`Creating location for ${cityName} with:`, {
+            lat: cityData.lat,
+            lon: cityData.lon,
+            timezone: cityData.timezone,
+            cityName: cityData.cityName
+        });
 
-    // Generate events for the next year
-    const now = new Date();
-    const oneYearFromNow = new Date();
-    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+        // Create location object with numeric lat/lon first, then other parameters
+        const location = new hebcal.Location(
+            Number(cityData.lat),    // latitude must be first and as number
+            Number(cityData.lon),    // longitude must be second and as number
+            cityData.timezone,       // timezone
+            cityName,                // name
+            cityData.country,        // country code
+            cityData.elevation || 0  // elevation
+        );
 
-    // Generate daily zmanim events
-    for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
-        const hDate = new hebcal.HDate(d);
-        const zmanim = new hebcal.Zmanim(location, hDate, true);
+        // Generate events for the next year
+        const now = new Date();
+        const oneYearFromNow = new Date();
+        oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
-        const zmanimTimes = {
-            'Alot HaShachar (Dawn)': {
-                time: zmanim.alotHaShachar(),
-                category: 'Dawn'
-            },
-            'Misheyakir': {
-                time: zmanim.misheyakir(),
-                category: 'Morning'
-            },
-            'Sunrise (HaNetz)': {
-                time: zmanim.sunrise(),
-                category: 'Morning'
-            },
-            'Sof Zman Shma GRA': {
-                time: zmanim.sofZmanShma(),
-                category: 'Morning'
-            },
-            'Sof Zman Tfilla GRA': {
-                time: zmanim.sofZmanTfilla(),
-                category: 'Morning'
-            },
-            'Chatzot (Midday)': {
-                time: zmanim.chatzot(),
-                category: 'Midday'
-            },
-            'Mincha Gedola': {
-                time: zmanim.minchaGedola(),
-                category: 'Afternoon'
-            },
-            'Mincha Ketana': {
-                time: zmanim.minchaKetana(),
-                category: 'Afternoon'
-            },
-            'Plag HaMincha': {
-                time: zmanim.plagHaMincha(),
-                category: 'Evening'
-            },
-            'Sunset (Shkia)': {
-                time: zmanim.sunset(),
-                category: 'Evening'
-            },
-            'Tzeit HaKochavim': {
-                time: zmanim.tzeit(),
-                category: 'Night'
-            }
-        };
+        // Generate daily zmanim events
+        for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
+            const hDate = new hebcal.HDate(d);
+            const zmanim = new hebcal.Zmanim(location, hDate, true);
 
-        Object.entries(zmanimTimes).forEach(([name, data]) => {
-            if (data.time) {
+            const zmanimTimes = {
+                'Alot HaShachar (Dawn)': {
+                    time: zmanim.alotHaShachar(),
+                    category: 'Dawn'
+                },
+                'Misheyakir': {
+                    time: zmanim.misheyakir(),
+                    category: 'Morning'
+                },
+                'Sunrise (HaNetz)': {
+                    time: zmanim.sunrise(),
+                    category: 'Morning'
+                },
+                'Sof Zman Shma GRA': {
+                    time: zmanim.sofZmanShma(),
+                    category: 'Morning'
+                },
+                'Sof Zman Tfilla GRA': {
+                    time: zmanim.sofZmanTfilla(),
+                    category: 'Morning'
+                },
+                'Chatzot (Midday)': {
+                    time: zmanim.chatzot(),
+                    category: 'Midday'
+                },
+                'Mincha Gedola': {
+                    time: zmanim.minchaGedola(),
+                    category: 'Afternoon'
+                },
+                'Mincha Ketana': {
+                    time: zmanim.minchaKetana(),
+                    category: 'Afternoon'
+                },
+                'Plag HaMincha': {
+                    time: zmanim.plagHaMincha(),
+                    category: 'Evening'
+                },
+                'Sunset (Shkia)': {
+                    time: zmanim.sunset(),
+                    category: 'Evening'
+                },
+                'Tzeit HaKochavim': {
+                    time: zmanim.tzeit(),
+                    category: 'Night'
+                }
+            };
+
+            Object.entries(zmanimTimes).forEach(([name, data]) => {
+                if (data.time) {
+                    calendar.createEvent({
+                        start: data.time,
+                        end: new Date(data.time.getTime() + EVENT_DURATION),
+                        summary: `${name} - ${cityName}`,
+                        description: formatTimeDescription(data.time, hDate, cityName),
+                        location: `${cityName}, ${cityData.region}`,
+                        categories: ['Zmanim', data.category],
+                        status: 'CONFIRMED',
+                        busystatus: 'FREE',
+                        transparency: 'TRANSPARENT'
+                    });
+                }
+            });
+        }
+
+        // Generate holiday and special events
+        const events = hebcal.HebrewCalendar.calendar({
+            start: now,
+            end: oneYearFromNow,
+            location: location,
+            candlelighting: true,
+            sedrot: true,
+            mask: hebcal.flags.ROSH_CHODESH |
+                  hebcal.flags.MAJOR_FAST |
+                  hebcal.flags.MINOR_HOLIDAY |
+                  hebcal.flags.MAJOR_HOLIDAY |
+                  hebcal.flags.MODERN_HOLIDAY |
+                  hebcal.flags.SPECIAL_SHABBAT |
+                  hebcal.flags.ROSH_CHODESH |
+                  hebcal.flags.SHABBAT_MEVARCHIM |
+                  hebcal.flags.PARSHA_HASHAVUA
+        });
+
+        events.forEach(ev => {
+            const startDate = ev.getDate().greg();
+            const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Full day events
+            const emoji = ev.getEmoji?.() || '';
+            const categories = ev.getCategories();
+
+            calendar.createEvent({
+                start: startDate,
+                end: endDate,
+                allDay: true,
+                summary: `${emoji ? emoji + ' ' : ''}${ev.render('en')}`,
+                description: `${ev.desc('en')}\nLocation: ${cityName}, ${cityData.region}\nHebrew Date: ${ev.getDate().toString()}`,
+                location: `${cityName}, ${cityData.region}`,
+                categories: categories,
+                status: 'CONFIRMED',
+                busystatus: ev.getFlags() & hebcal.flags.MAJOR_HOLIDAY ? 'FREE' : 'BUSY',
+                transparency: 'TRANSPARENT'
+            });
+        });
+
+        // Add candle lighting times
+        const candleLightingEvents = hebcal.HebrewCalendar.calendar({
+            start: now,
+            end: oneYearFromNow,
+            location: location,
+            candlelighting: true,
+            havdalah: true,
+            havdalahMins: 42,
+            candleLightingMins: 18
+        });
+
+        candleLightingEvents.forEach(ev => {
+            if (ev.getFlags() & (hebcal.flags.LIGHT_CANDLES | hebcal.flags.HAVDALAH)) {
+                const date = ev.getDate().greg();
+                const emoji = ev.getFlags() & hebcal.flags.LIGHT_CANDLES ? '🕯️' : '✨';
+
                 calendar.createEvent({
-                    start: data.time,
-                    end: new Date(data.time.getTime() + EVENT_DURATION),
-                    summary: `${name} - ${cityName}`,
-                    description: formatTimeDescription(data.time, hDate, cityName),
+                    start: date,
+                    end: new Date(date.getTime() + EVENT_DURATION),
+                    summary: `${emoji} ${ev.render('en')} - ${cityName}`,
+                    description: formatTimeDescription(date, ev.getDate(), cityName),
                     location: `${cityName}, ${cityData.region}`,
-                    categories: ['Zmanim', data.category],
+                    categories: ['Candle Lighting'],
                     status: 'CONFIRMED',
                     busystatus: 'FREE',
                     transparency: 'TRANSPARENT'
                 });
             }
         });
+
+        // Save the calendar
+        const filename = path.join(__dirname, 'calendars', `${cityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`);
+        await fs.mkdir(path.dirname(filename), { recursive: true });
+        await fs.writeFile(filename, calendar.toString());
+
+        console.log(`Calendar generated for ${cityName}`);
+    } catch (error) {
+        console.error(`Error generating calendar for ${cityName}:`, error);
+        throw error;
     }
-
-    // Generate holiday and special events
-    const events = hebcal.HebrewCalendar.calendar({
-        start: now,
-        end: oneYearFromNow,
-        location: location,
-        candlelighting: true,
-        sedrot: true,
-        mask: hebcal.flags.ROSH_CHODESH |
-              hebcal.flags.MAJOR_FAST |
-              hebcal.flags.MINOR_HOLIDAY |
-              hebcal.flags.MAJOR_HOLIDAY |
-              hebcal.flags.MODERN_HOLIDAY |
-              hebcal.flags.SPECIAL_SHABBAT |
-              hebcal.flags.ROSH_CHODESH |
-              hebcal.flags.SHABBAT_MEVARCHIM |
-              hebcal.flags.PARSHA_HASHAVUA
-    });
-
-    events.forEach(ev => {
-        const startDate = ev.getDate().greg();
-        const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000); // Full day events
-        const emoji = ev.getEmoji?.() || '';
-        const categories = ev.getCategories();
-
-        calendar.createEvent({
-            start: startDate,
-            end: endDate,
-            allDay: true,
-            summary: `${emoji ? emoji + ' ' : ''}${ev.render('en')}`,
-            description: `${ev.desc('en')}\nLocation: ${cityName}, ${cityData.region}\nHebrew Date: ${ev.getDate().toString()}`,
-            location: `${cityName}, ${cityData.region}`,
-            categories: categories,
-            status: 'CONFIRMED',
-            busystatus: ev.getFlags() & hebcal.flags.MAJOR_HOLIDAY ? 'FREE' : 'BUSY',
-            transparency: 'TRANSPARENT'
-        });
-    });
-
-    // Add candle lighting times
-    const candleLightingEvents = hebcal.HebrewCalendar.calendar({
-        start: now,
-        end: oneYearFromNow,
-        location: location,
-        candlelighting: true,
-        havdalah: true,
-        havdalahMins: 42,
-        candleLightingMins: 18
-    });
-
-    candleLightingEvents.forEach(ev => {
-        if (ev.getFlags() & (hebcal.flags.LIGHT_CANDLES | hebcal.flags.HAVDALAH)) {
-            const date = ev.getDate().greg();
-            const emoji = ev.getFlags() & hebcal.flags.LIGHT_CANDLES ? '🕯️' : '✨';
-
-            calendar.createEvent({
-                start: date,
-                end: new Date(date.getTime() + EVENT_DURATION),
-                summary: `${emoji} ${ev.render('en')} - ${cityName}`,
-                description: formatTimeDescription(date, ev.getDate(), cityName),
-                location: `${cityName}, ${cityData.region}`,
-                categories: ['Candle Lighting'],
-                status: 'CONFIRMED',
-                busystatus: 'FREE',
-                transparency: 'TRANSPARENT'
-            });
-        }
-    });
-
-    // Save the calendar
-    const filename = path.join(__dirname, 'calendars', `${cityName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.ics`);
-    await fs.mkdir(path.dirname(filename), { recursive: true });
-    await fs.writeFile(filename, calendar.toString());
-
-    console.log(`Calendar generated for ${cityName}`);
 }
 
 async function generateIndexFile() {
