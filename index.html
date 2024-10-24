@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hebrew Date Calculator</title>
+    <title>Hebrew Date & Zmanim Calculator</title>
     <link rel="stylesheet" href="./assets/style.css">
-    <!-- Using local hebcal bundle -->
-    <script src="./assets/bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Hebrew Date Calculator</h1>
+        <h1>Hebrew Date & Zmanim Calculator</h1>
 
         <div class="input-group">
             <label>Latitude: </label>
@@ -21,13 +19,15 @@
 
         <div class="button-group">
             <button onclick="findMe()">Find Me</button>
-            <button onclick="calculateHebrewDate()">Get Hebrew Date & Zmanim</button>
+            <button onclick="calculateHebrewDate()">Get Hebrew Date and Zmanim</button>
         </div>
 
         <div id="result"></div>
+        <div id="events-container"></div>
         <div id="debug"></div>
     </div>
 
+    <script src="./assets/bundle.min.js"></script>
     <script src="./assets/main.js"></script>
 </body>
 </html>
