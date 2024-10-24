@@ -15,9 +15,9 @@ const EVENT_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 const MAJOR_CITIES = {
     "Melbourne (St Kilda East)": {
         lat: -37.8716, 
-        long: 144.9989,  // Changed from lon to long
-        tzid: "Australia/Melbourne",  // Changed from timezone to tzid
-        cc: "AU",  // Changed from country to cc
+        long: 144.9989,
+        tzid: "Australia/Melbourne",
+        cc: "AU",
         elevation: 35,
         cityName: "St Kilda East",
         region: "Victoria"
@@ -92,16 +92,26 @@ async function generateICSForCity(cityName, cityData) {
     console.log(`Generating calendar for ${cityName}...`);
 
     try {
-        // Convert coordinates to numbers and validate
+        // Convert coordinates to numbers
         const latitude = parseFloat(cityData.lat);
         const longitude = parseFloat(cityData.long);
 
-        console.log(`Debug - Coordinates for ${cityName}:`, {
-            latitude: latitude,
-            longitude: longitude,
-            type: typeof latitude,
-            value: latitude
+        console.log(`Creating location for ${cityName} with:`, {
+            lat: latitude,
+            long: longitude,
+            tzid: cityData.tzid,
+            cityName: cityData.cityName
         });
+
+        // Create location object with direct parameters (not as an object)
+        const location = new hebcal.Location(
+            latitude,
+            longitude,
+            cityData.tzid,
+            cityData.cityName,
+            cityData.cc,
+            cityData.elevation || 0
+        );
 
         const calendar = ical({
             name: `Jewish Calendar - ${cityName}`,
@@ -115,16 +125,6 @@ async function generateICSForCity(cityName, cityData) {
             ttl: 60 * 60 * 24
         });
 
-        // Create the Location object using v4 format
-        const location = new hebcal.Location({
-            lat: latitude,
-            long: longitude,
-            tzid: cityData.tzid,
-            name: cityName,
-            cc: cityData.cc,
-            elevation: cityData.elevation || 0
-        });
-
         // Generate events for the next year
         const now = new Date();
         const oneYearFromNow = new Date();
@@ -133,20 +133,7 @@ async function generateICSForCity(cityName, cityData) {
         // Generate daily zmanim events
         for (let d = new Date(now); d <= oneYearFromNow; d.setDate(d.getDate() + 1)) {
             const hDate = new hebcal.HDate(d);
-
-            // Create Zmanim instance using v4 format
             const zmanim = new hebcal.Zmanim(location, hDate);
-
-            // Debug the first zmanim calculation
-            if (d.getTime() === now.getTime()) {
-                console.log(`First zmanim calculation for ${cityName}:`, {
-                    date: d,
-                    latitude: latitude,
-                    longitude: longitude,
-                    sunrise: zmanim.sunrise(),
-                    sunset: zmanim.sunset()
-                });
-            }
 
             const zmanimTimes = {
                 'Alot HaShachar (Dawn)': {
@@ -194,7 +181,6 @@ async function generateICSForCity(cityName, cityData) {
                     category: 'Night'
                 }
             };
-
             Object.entries(zmanimTimes).forEach(([name, data]) => {
                 if (data.time) {
                     calendar.createEvent({
