@@ -4,8 +4,6 @@
     <title>Hebrew Date Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style.css">
-    <!-- Changed from CDN to local file -->
-    <script src="assets/bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -42,8 +40,23 @@
 
         <div id="error-message" class="error-message hidden"></div>
         <div id="result" class="result-container hidden"></div>
+
+        <!-- Add link to calendars -->
+        <div id="calendar-links" class="calendar-links hidden">
+            <h3>Calendar Subscriptions</h3>
+            <p>View our pre-generated calendars for major cities:</p>
+            <a href="./calendars/" class="button">Browse Calendars</a>
+        </div>
     </div>
 
+    <!-- Load Hebcal bundle first -->
+    <script src="assets/bundle.min.js"></script>
+    <!-- Debug info -->
+    <script>
+        console.log('Hebcal version:', hebcal?.VERSION || 'not loaded');
+        console.log('Hebcal object:', typeof hebcal !== 'undefined' ? 'loaded' : 'not loaded');
+    </script>
+    <!-- Then load our main code -->
     <script src="assets/main.js"></script>
 </body>
 </html>
