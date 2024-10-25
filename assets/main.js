@@ -1,3 +1,12 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners
+    document.getElementById('findMeBtn').addEventListener('click', findMe);
+    document.getElementById('calculateBtn').addEventListener('click', calculateHebrewDate);
+
+    // Log version for debugging
+    console.log('Hebcal version:', hebcal?.VERSION);
+});
+
 function showLoading(button) {
     button.classList.add('loading');
     button.querySelector('.loading-spinner').classList.remove('hidden');
@@ -82,7 +91,7 @@ function calculateHebrewDate() {
 
         // Get all zmanim for the day
         const zmanimList = {
-            'Alot HaShachar (Dawn)': zmanim.alotHaShachar(),
+            'Alot HaShachar (Dawn)': zmanim.alot(),
             'Misheyakir': zmanim.misheyakir(),
             'Sunrise': zmanim.sunrise(),
             'Sof Zman Shma GRA': zmanim.sofZmanShma(),
@@ -119,7 +128,7 @@ function calculateHebrewDate() {
             holidayHtml += '</div>';
         }
 
-        // Check if it's Friday (for candle lighting) or Saturday (for havdalah)
+        // Check for candle lighting
         const candleLighting = hebcal.HebrewCalendar.getCandleLighting(location, hDate);
         let candleHtml = '';
         if (candleLighting.length > 0) {
