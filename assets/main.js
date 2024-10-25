@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('calculateBtn').addEventListener('click', calculateHebrewDate);
 
     // Log version for debugging
-    console.log('Hebcal version:', hebcal?.VERSION);
+    console.log('Hebcal loaded:', typeof Hebcal !== 'undefined');
 });
 
 function showLoading(button) {
@@ -93,7 +93,7 @@ function calculateHebrewDate() {
 
     try {
         const now = new Date();
-        const location = new hebcal.Location(
+        const location = new Hebcal.Location(
             parseFloat(lat),
             parseFloat(lon),
             false,
@@ -101,16 +101,16 @@ function calculateHebrewDate() {
             'Custom Location'
         );
 
-        const hDate = new hebcal.HDate();
-        const zmanim = new hebcal.Zmanim(location, now);
+        const hDate = new Hebcal.HDate();
+        const zmanim = new Hebcal.Zmanim(location, now);
 
         // Get all zmanim for the day
         const zmanimList = {
-            'Alot HaShachar (Dawn)': zmanim.alot(),
+            'Alot HaShachar (Dawn)': zmanim.alotHaShachar(),
             'Misheyakir': zmanim.misheyakir(),
             'Sunrise': zmanim.sunrise(),
-            'Sof Zman Shma GRA': zmanim.sofZmanShma(),
-            'Sof Zman Tfilla GRA': zmanim.sofZmanTfilla(),
+            'Sof Zman Shma GRA': zmanim.sofZmanShmaGRA(),
+            'Sof Zman Tfilla GRA': zmanim.sofZmanTfillaGRA(),
             'Chatzot': zmanim.chatzot(),
             'Mincha Gedola': zmanim.minchaGedola(),
             'Mincha Ketana': zmanim.minchaKetana(),
@@ -126,7 +126,7 @@ function calculateHebrewDate() {
         zmanimHtml += '</div>';
 
         // Get holiday information
-        const events = hebcal.HebrewCalendar.getHolidaysOnDate(hDate);
+        const events = Hebcal.HebrewCalendar.getHolidaysOnDate(hDate);
         let holidayHtml = '';
         if (events && events.length > 0) {
             holidayHtml = '<div class="holiday-container"><h3>Holidays & Special Days</h3>';
@@ -150,7 +150,7 @@ function calculateHebrewDate() {
         // Check for candle lighting
         let candleHtml = '';
         try {
-            const candleLighting = hebcal.HebrewCalendar.getCandleLighting(location, hDate);
+            const candleLighting = Hebcal.HebrewCalendar.getCandleLighting(location, hDate);
             if (candleLighting && candleLighting.length > 0) {
                 candleHtml = '<div class="candle-container"><h3>Shabbat/Holiday Times</h3>';
                 candleLighting.forEach(ev => {
