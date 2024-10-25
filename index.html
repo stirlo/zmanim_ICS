@@ -3,6 +3,7 @@
 <head>
     <title>Hebrew Date Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -28,11 +29,11 @@
         </div>
 
         <div class="button-group">
-            <button onclick="findMe()" class="location-button">
+            <button id="findMeBtn" class="location-button">
                 📍 Find My Location
                 <span class="loading-spinner hidden"></span>
             </button>
-            <button onclick="calculateHebrewDate()" class="calculate-button">
+            <button id="calculateBtn" class="calculate-button">
                 🗓 Get Hebrew Date
                 <span class="loading-spinner hidden"></span>
             </button>
@@ -40,23 +41,9 @@
 
         <div id="error-message" class="error-message hidden"></div>
         <div id="result" class="result-container hidden"></div>
-
-        <!-- Add link to calendars -->
-        <div id="calendar-links" class="calendar-links hidden">
-            <h3>Calendar Subscriptions</h3>
-            <p>View our pre-generated calendars for major cities:</p>
-            <a href="./calendars/" class="button">Browse Calendars</a>
-        </div>
     </div>
 
-    <!-- Load Hebcal bundle first -->
     <script src="assets/bundle.min.js"></script>
-    <!-- Debug info -->
-    <script>
-        console.log('Hebcal version:', hebcal?.VERSION || 'not loaded');
-        console.log('Hebcal object:', typeof hebcal !== 'undefined' ? 'loaded' : 'not loaded');
-    </script>
-    <!-- Then load our main code -->
     <script src="assets/main.js"></script>
 </body>
 </html>
