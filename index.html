@@ -4,6 +4,8 @@
     <title>Hebrew Date Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style.css">
+    <!-- Changed from CDN to local file -->
+    <script src="assets/bundle.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -39,112 +41,9 @@
         </div>
 
         <div id="error-message" class="error-message hidden"></div>
-        <div id="result" class="calendar-subscription-item hidden"></div>
+        <div id="result" class="result-container hidden"></div>
     </div>
 
-    <script>
-        function showLoading(button) {
-            button.classList.add('loading');
-            button.querySelector('.loading-spinner').classList.remove('hidden');
-        }
-
-        function hideLoading(button) {
-            button.classList.remove('loading');
-            button.querySelector('.loading-spinner').classList.add('hidden');
-        }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-            setTimeout(() => {
-                errorDiv.classList.add('hidden');
-            }, 5000); // Hide after 5 seconds
-        }
-
-        function findMe() {
-            const button = document.querySelector('.location-button');
-            showLoading(button);
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        document.getElementById('latitude').value = position.coords.latitude.toFixed(3);
-                        document.getElementById('longitude').value = position.coords.longitude.toFixed(3);
-                        hideLoading(button);
-                    },
-                    error => {
-                        hideLoading(button);
-                        showError("Error getting location: " + error.message);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                hideLoading(button);
-                showError("Geolocation is not supported by this browser.");
-            }
-        }
-
-        function calculateHebrewDate() {
-            const lat = document.getElementById('latitude').value;
-            const lon = document.getElementById('longitude').value;
-            const button = document.querySelector('.calculate-button');
-            const resultDiv = document.getElementById('result');
-
-            if (!lat || !lon) {
-                showError("Please enter both latitude and longitude");
-                return;
-            }
-
-            if (lat < -90 || lat > 90) {
-                showError("Latitude must be between -90 and 90 degrees");
-                return;
-            }
-
-            if (lon < -180 || lon > 180) {
-                showError("Longitude must be between -180 and 180 degrees");
-                return;
-            }
-
-            showLoading(button);
-            resultDiv.classList.add('hidden');
-
-            fetch('/get_hebrew_date', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    latitude: parseFloat(lat),
-                    longitude: parseFloat(lon)
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                resultDiv.innerHTML = `
-                    <h3>Results</h3>
-                    <p><strong>Hebrew Date:</strong> ${data.hebrew_date}</p>
-                    <p><strong>Location:</strong> ${data.latitude}°, ${data.longitude}°</p>
-                `;
-                resultDiv.classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showError('Error calculating Hebrew date. Please try again.');
-            })
-            .finally(() => {
-                hideLoading(button);
-            });
-        }
-    </script>
+    <script src="assets/main.js"></script>
 </body>
 </html>
