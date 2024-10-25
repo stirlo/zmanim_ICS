@@ -1,111 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hebrew Calendar Subscriptions</title>
+    <title>Calendar Subscriptions - Jewish Calendar & Zmanim</title>
     <link rel="stylesheet" href="assets/style.css">
-    <style>
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .city-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .city-card h2 {
-            color: #2c3e50;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-        .calendar-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        .calendar-link:hover {
-            background-color: #45a049;
-        }
-
-        .instructions {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #666;
-            text-decoration: none;
-        }
-
-        .back-link:hover {
-            color: #333;
-        }
-
-        .update-time {
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <body>
     <div class="container">
-        <h1>Jewish Calendar Subscriptions</h1>
-
-        <div class="instructions">
-            <h3>About These Calendars</h3>
-            <p>Each city's calendar includes:</p>
-            <ul>
-                <li>Shabbat times (candle lighting and havdalah)</li>
-                <li>Jewish holidays and festivals</li>
-                <li>Daily zmanim (prayer times)</li>
-            </ul>
-            <p>Calendars are updated daily and include events for the next 8 weeks.</p>
-        </div>
-
-        <div class="calendar-grid">
-            {% for city, info in cities.items() %}
-            <div class="city-card">
-                <h2>{{ city }}</h2>
-                <div>{{ info.timezone }}</div>
-                <a href="/static/calendars/{{ city.lower().replace(' ', '_') }}.ics" 
-                   class="calendar-link">
-                    Subscribe to Calendar
-                </a>
-                <div class="update-time">Last updated: {{ last_update }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="instructions">
-            <h3>How to Subscribe</h3>
-            <ol>
-                <li>Click the "Subscribe to Calendar" button for your city</li>
-                <li>Your calendar app will open automatically</li>
-                <li>Select "Subscribe" when prompted</li>
-                <li>The calendar will automatically update daily</li>
-            </ol>
-            <p><strong>Note:</strong> These calendars work with Google Calendar, Apple Calendar, Outlook, and most other calendar applications.</p>
-        </div>
-
-        <a href="/" class="back-link">← Back to Zmanim Calculator</a>
+        <h1>Calendar Subscriptions</h1>
+        <div id="calendar-links"></div>
+        <p id="last-update"></p>
+        <button onclick="window.location.href='index.html'" class="back-button">Back to Calculator</button>
     </div>
+
+    <script>
+        const CITIES = {
+            'Melbourne': { lat: -37.8716, lon: 144.9989, tzid: 'Australia/Melbourne' },
+            'Jerusalem': { lat: 31.778, lon: 35.235, tzid: 'Asia/Jerusalem' },
+            'Tel Aviv': { lat: 32.087, lon: 34.791, tzid: 'Asia/Jerusalem' },
+            'New York': { lat: 40.759, lon: -73.979, tzid: 'America/New_York' },
+            'Los Angeles': { lat: 34.052, lon: -118.243, tzid: 'America/Los_Angeles' },
+            'London': { lat: 51.507, lon: -0.127, tzid: 'Europe/London' },
+            'Sydney': { lat: -33.868, lon: 151.209, tzid: 'Australia/Sydney' },
+            'Hong Kong': { lat: 22.302, lon: 114.177, tzid: 'Asia/Hong_Kong' }
+        };
+
+        function generateCalendarLinks() {
+            const calendarDiv = document.getElementById('calendar-links');
+            calendarDiv.innerHTML = '';
+
+            for (const [city, coords] of Object.entries(CITIES)) {
+                const citySection = document.createElement('div');
+                citySection.className = 'city-section';
+
+                const title = document.createElement('h3');
+                title.textContent = city;
+
+                const linksList = document.createElement('ul');
+                linksList.className = 'calendar-list';
+
+                const calendarTypes = [
+                    { name: 'Daily Zmanim', params: 'M=on&b=18&m=72' },
+                    { name: 'Shabbat Times', params: 'c=on' },
+                    { name: 'Holidays', params: 'maj=on&min=on' }
+                ];
+
+                calendarTypes.forEach(type => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+
+                    const params = new URLSearchParams({
+                        cfg: 'json',
+                        latitude: coords.lat,
+                        longitude: coords.lon,
+                        tzid: coords.tzid,
+                        ...Object.fromEntries(new URLSearchParams(type.params))
+                    });
+
+                    const baseUrl = 'www.hebcal.com/hebcal';
+                    link.href = `webcal://${baseUrl}?${params.toString()}`;
+                    link.textContent = `Subscribe to ${city} ${type.name}`;
+
+                    li.appendChild(link);
+                    linksList.appendChild(li);
+                });
+
+                citySection.appendChild(title);
+                citySection.appendChild(linksList);
+                calendarDiv.appendChild(citySection);
+            }
+        }
+
+        function updateLastUpdateTime() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = 
+                `Last Updated: ${now.toLocaleString()}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCalendarLinks();
+            updateLastUpdateTime();
+        });
+    </script>
 </body>
 </html>
