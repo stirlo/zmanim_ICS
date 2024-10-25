@@ -53,6 +53,20 @@ function findMe() {
     }
 }
 
+function formatTime(date) {
+    if (!date) return 'N/A';
+    try {
+        return date.toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+    } catch (e) {
+        console.error('Error formatting time:', e);
+        return 'N/A';
+    }
+}
+
 function calculateHebrewDate() {
     const lat = document.getElementById('latitude').value;
     const lon = document.getElementById('longitude').value;
@@ -83,7 +97,8 @@ function calculateHebrewDate() {
             parseFloat(lat),
             parseFloat(lon),
             false,
-            Intl.DateTimeFormat().resolvedOptions().timeZone
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            'Custom Location'
         );
 
         const hDate = new hebcal.HDate();
@@ -106,43 +121,55 @@ function calculateHebrewDate() {
 
         let zmanimHtml = '<div class="zmanim-container">';
         for (const [name, time] of Object.entries(zmanimList)) {
-            if (time) {
-                zmanimHtml += `<p><strong>${name}:</strong> ${time.toLocaleTimeString()}</p>`;
-            }
+            zmanimHtml += `<p><strong>${name}:</strong> ${formatTime(time)}</p>`;
         }
         zmanimHtml += '</div>';
 
         // Get holiday information
         const events = hebcal.HebrewCalendar.getHolidaysOnDate(hDate);
         let holidayHtml = '';
-        if (events.length > 0) {
+        if (events && events.length > 0) {
             holidayHtml = '<div class="holiday-container"><h3>Holidays & Special Days</h3>';
             events.forEach(ev => {
-                const emoji = ev.emoji || '';
-                holidayHtml += `
-                    <div class="event-item ${ev.getCategories().join(' ').toLowerCase()}">
-                        <span class="event-emoji">${emoji}</span>
-                        <span class="event-title">${ev.render('en')}</span>
-                    </div>`;
+                try {
+                    const emoji = ev.emoji || '';
+                    const categories = Array.isArray(ev.getCategories()) ? 
+                        ev.getCategories().join(' ').toLowerCase() : '';
+                    holidayHtml += `
+                        <div class="event-item ${categories}">
+                            <span class="event-emoji">${emoji}</span>
+                            <span class="event-title">${ev.render('en')}</span>
+                        </div>`;
+                } catch (e) {
+                    console.error('Error processing holiday:', e);
+                }
             });
             holidayHtml += '</div>';
         }
 
         // Check for candle lighting
-        const candleLighting = hebcal.HebrewCalendar.getCandleLighting(location, hDate);
         let candleHtml = '';
-        if (candleLighting.length > 0) {
-            candleHtml = '<div class="candle-container"><h3>Shabbat/Holiday Times</h3>';
-            candleLighting.forEach(ev => {
-                const emoji = ev.emoji || (ev.desc.includes('Havdalah') ? '✨' : '🕯');
-                candleHtml += `
-                    <div class="event-item candles">
-                        <span class="event-emoji">${emoji}</span>
-                        <span class="event-title">${ev.render('en')}</span>
-                        <span class="event-date">${ev.eventTime.toLocaleTimeString()}</span>
-                    </div>`;
-            });
-            candleHtml += '</div>';
+        try {
+            const candleLighting = hebcal.HebrewCalendar.getCandleLighting(location, hDate);
+            if (candleLighting && candleLighting.length > 0) {
+                candleHtml = '<div class="candle-container"><h3>Shabbat/Holiday Times</h3>';
+                candleLighting.forEach(ev => {
+                    try {
+                        const emoji = ev.emoji || (ev.desc.includes('Havdalah') ? '✨' : '🕯');
+                        candleHtml += `
+                            <div class="event-item candles">
+                                <span class="event-emoji">${emoji}</span>
+                                <span class="event-title">${ev.render('en')}</span>
+                                <span class="event-date">${formatTime(ev.eventTime)}</span>
+                            </div>`;
+                    } catch (e) {
+                        console.error('Error processing candle lighting event:', e);
+                    }
+                });
+                candleHtml += '</div>';
+            }
+        } catch (e) {
+            console.error('Error processing candle lighting:', e);
         }
 
         resultDiv.innerHTML = `
