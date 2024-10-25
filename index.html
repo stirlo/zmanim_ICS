@@ -3,79 +3,7 @@
 <head>
     <title>Hebrew Calendar & Zmanim</title>
     <script src="assets/luxon.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .input-group {
-            margin: 10px 0;
-        }
-        input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 150px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #result, #zmanim, #shabbat {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 4px;
-            background-color: #f8f9fa;
-        }
-        .hebrew-date {
-            font-size: 1.4em;
-            color: #2c3e50;
-            margin: 10px 0;
-        }
-        .coordinates {
-            color: #666;
-            font-size: 0.9em;
-        }
-        .zmanim-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .zman-item {
-            padding: 8px;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .shabbat-times {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #fff3e0;
-            border-radius: 4px;
-        }
-        .loading {
-            color: #666;
-            font-style: italic;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
     <div class="container">
@@ -144,6 +72,12 @@
 
                 // Get Shabbat times from Hebcal API
                 await fetchShabbatTimes(lat, lon);
+
+                // Get next holiday
+                const holidayInfo = await fetchNextHoliday(lat, lon);
+                if (holidayInfo) {
+                    document.getElementById('result').innerHTML += holidayInfo;
+                }
             } catch (error) {
                 console.error('Calculation error:', error);
             }
@@ -234,6 +168,47 @@
                 document.getElementById('shabbat').innerHTML = shabbatHtml;
             } catch (error) {
                 document.getElementById('shabbat').innerHTML = `Error fetching Shabbat times: ${error.message}`;
+            }
+        }
+
+        async function fetchNextHoliday(lat, lon) {
+            const today = new Date();
+            const endDate = new Date();
+            endDate.setMonth(endDate.getMonth() + 3); // Look ahead 3 months
+
+            const url = `https://www.hebcal.com/hebcal?cfg=json&v=1&latitude=${lat}&longitude=${lon}&start=${today.toISOString().split('T')[0]}&end=${endDate.toISOString().split('T')[0]}&maj=on`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Filter for the next major holiday
+                const nextHoliday = data.items.find(item => 
+                    item.category === 'holiday' && new Date(item.date) >= today
+                );
+
+                if (nextHoliday) {
+                    const holidayDate = new Date(nextHoliday.date);
+                    const formattedDate = holidayDate.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    return `
+                        <div class="next-holiday">
+                            <h3>Next Holiday</h3>
+                            <div class="holiday-info">
+                                <strong>${nextHoliday.title}</strong><br>
+                                ${formattedDate}
+                            </div>
+                        </div>
+                    `;
+                }
+                return '';
+            } catch (error) {
+                console.error('Error fetching holiday:', error);
+                return '<div class="error">Error fetching holiday information</div>';
             }
         }
 
