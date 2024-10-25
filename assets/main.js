@@ -70,37 +70,70 @@ function calculateHebrewDate() {
 
     try {
         const now = new Date();
-        // Create location using the newer API
         const location = new hebcal.Location(
             parseFloat(lat),
             parseFloat(lon),
-            false, // useElevation
-            'UTC', // timezone string
-            'Custom Location', // name
-            'XX', // country code
-            0 // elevation
+            false,
+            Intl.DateTimeFormat().resolvedOptions().timeZone
         );
 
-        // Create HDate instance
         const hDate = new hebcal.HDate();
+        const zmanim = new hebcal.Zmanim(location, now);
 
-        // Create Zmanim instance with the newer API
-        const zmanim = new hebcal.Zmanim(location, hDate.greg());
-
-        // Get zmanim times using the newer method names
-        const zmanimTimes = {
-            'Sunrise': zmanim.sunrise,
-            'Sunset': zmanim.sunset,
-            'Chatzot': zmanim.chatzot,
-            'Mincha Gedola': zmanim.minchaGedola,
-            'Plag HaMincha': zmanim.plagHaMincha
+        // Get all zmanim for the day
+        const zmanimList = {
+            'Alot HaShachar (Dawn)': zmanim.alotHaShachar(),
+            'Misheyakir': zmanim.misheyakir(),
+            'Sunrise': zmanim.sunrise(),
+            'Sof Zman Shma GRA': zmanim.sofZmanShma(),
+            'Sof Zman Tfilla GRA': zmanim.sofZmanTfilla(),
+            'Chatzot': zmanim.chatzot(),
+            'Mincha Gedola': zmanim.minchaGedola(),
+            'Mincha Ketana': zmanim.minchaKetana(),
+            'Plag HaMincha': zmanim.plagHaMincha(),
+            'Sunset': zmanim.sunset(),
+            'Tzeit HaKochavim': zmanim.tzeit()
         };
 
-        let zmanimHtml = '';
-        for (const [name, time] of Object.entries(zmanimTimes)) {
-            if (time instanceof Date) {
+        let zmanimHtml = '<div class="zmanim-container">';
+        for (const [name, time] of Object.entries(zmanimList)) {
+            if (time) {
                 zmanimHtml += `<p><strong>${name}:</strong> ${time.toLocaleTimeString()}</p>`;
             }
+        }
+        zmanimHtml += '</div>';
+
+        // Get holiday information
+        const events = hebcal.HebrewCalendar.getHolidaysOnDate(hDate);
+        let holidayHtml = '';
+        if (events.length > 0) {
+            holidayHtml = '<div class="holiday-container"><h3>Holidays & Special Days</h3>';
+            events.forEach(ev => {
+                const emoji = ev.emoji || '';
+                holidayHtml += `
+                    <div class="event-item ${ev.getCategories().join(' ').toLowerCase()}">
+                        <span class="event-emoji">${emoji}</span>
+                        <span class="event-title">${ev.render('en')}</span>
+                    </div>`;
+            });
+            holidayHtml += '</div>';
+        }
+
+        // Check if it's Friday (for candle lighting) or Saturday (for havdalah)
+        const candleLighting = hebcal.HebrewCalendar.getCandleLighting(location, hDate);
+        let candleHtml = '';
+        if (candleLighting.length > 0) {
+            candleHtml = '<div class="candle-container"><h3>Shabbat/Holiday Times</h3>';
+            candleLighting.forEach(ev => {
+                const emoji = ev.emoji || (ev.desc.includes('Havdalah') ? '✨' : '🕯');
+                candleHtml += `
+                    <div class="event-item candles">
+                        <span class="event-emoji">${emoji}</span>
+                        <span class="event-title">${ev.render('en')}</span>
+                        <span class="event-date">${ev.eventTime.toLocaleTimeString()}</span>
+                    </div>`;
+            });
+            candleHtml += '</div>';
         }
 
         resultDiv.innerHTML = `
@@ -109,6 +142,8 @@ function calculateHebrewDate() {
             <p><strong>Location:</strong> ${lat}°, ${lon}°</p>
             <h3>Zmanim</h3>
             ${zmanimHtml}
+            ${holidayHtml}
+            ${candleHtml}
         `;
         resultDiv.classList.remove('hidden');
     } catch (error) {
