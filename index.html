@@ -1,52 +1,250 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hebrew Date Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="assets/style.css">
-    <script src="https://unpkg.com/@hebcal/core"></script>
-<script src="https://unpkg.com/@hebcal/zmanim"></script>
-
+    <title>Hebrew Calendar & Zmanim</title>
+    <script src="assets/luxon.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result, #zmanim, #shabbat {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .hebrew-date {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        .coordinates {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .zmanim-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .zman-item {
+            padding: 8px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .shabbat-times {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fff3e0;
+            border-radius: 4px;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Hebrew Date Calculator</h1>
+        <h1>Hebrew Calendar & Zmanim</h1>
 
         <div class="input-group">
-            <label for="latitude">Latitude:</label>
-            <input type="number" 
-                   id="latitude" 
-                   step="0.001" 
-                   placeholder="Enter latitude (-90 to 90)"
-                   aria-label="Latitude coordinate">
+            <label>Latitude: </label>
+            <input type="number" id="latitude" step="0.001" placeholder="Enter latitude">
         </div>
-
         <div class="input-group">
-            <label for="longitude">Longitude:</label>
-            <input type="number" 
-                   id="longitude" 
-                   step="0.001" 
-                   placeholder="Enter longitude (-180 to 180)"
-                   aria-label="Longitude coordinate">
+            <label>Longitude: </label>
+            <input type="number" id="longitude" step="0.001" placeholder="Enter longitude">
         </div>
 
-        <div class="button-group">
-            <button id="findMeBtn" class="location-button">
-                📍 Find My Location
-                <span class="loading-spinner hidden"></span>
-            </button>
-            <button id="calculateBtn" class="calculate-button">
-                🗓 Get Hebrew Date
-                <span class="loading-spinner hidden"></span>
-            </button>
-        </div>
+        <button onclick="findMe()">Find Me</button>
+        <button onclick="calculateAll()">Get All Times</button>
 
-        <div id="error-message" class="error-message hidden"></div>
-        <div id="result" class="result-container hidden"></div>
+        <div id="result"></div>
+        <div id="shabbat"></div>
+        <div id="zmanim"></div>
     </div>
 
-    <script src="assets/bundle.min.js"></script>
-    <script src="assets/main.js"></script>
+    <script>
+        // Check if Luxon is loaded
+        if (typeof luxon === 'undefined') {
+            alert('Error: Luxon library not loaded. Please check your installation.');
+        }
+
+        function findMe() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        document.getElementById('latitude').value = position.coords.latitude.toFixed(3);
+                        document.getElementById('longitude').value = position.coords.longitude.toFixed(3);
+                        calculateAll();
+                    },
+                    error => {
+                        alert("Error getting location: " + error.message);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        async function calculateAll() {
+            const lat = document.getElementById('latitude').value;
+            const lon = document.getElementById('longitude').value;
+
+            if (!lat || !lon) {
+                alert("Please enter latitude and longitude");
+                return;
+            }
+
+            // Show loading states
+            document.getElementById('result').innerHTML = '<div class="loading">Loading date information...</div>';
+            document.getElementById('zmanim').innerHTML = '<div class="loading">Loading zmanim...</div>';
+            document.getElementById('shabbat').innerHTML = '<div class="loading">Loading Shabbat times...</div>';
+
+            try {
+                // Basic Hebrew date using Luxon
+                displayHebrewDate();
+
+                // Get Zmanim from Hebcal API
+                await fetchZmanim(lat, lon);
+
+                // Get Shabbat times from Hebcal API
+                await fetchShabbatTimes(lat, lon);
+            } catch (error) {
+                console.error('Calculation error:', error);
+            }
+        }
+
+        function displayHebrewDate() {
+            const now = luxon.DateTime.now().setZone('local');
+            const hebrewDateHebrew = now.toLocaleString({
+                calendar: 'hebrew',
+                numberingSystem: 'latn',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            }, 'he');
+
+            const hebrewDateEnglish = now.toLocaleString({
+                calendar: 'hebrew',
+                numberingSystem: 'latn',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            }, 'en');
+
+            document.getElementById('result').innerHTML = `
+                <div class="hebrew-date">
+                    ${hebrewDateHebrew}<br>
+                    ${hebrewDateEnglish}
+                </div>
+            `;
+        }
+
+        async function fetchZmanim(lat, lon) {
+            const today = new Date().toISOString().split('T')[0];
+            const url = `https://www.hebcal.com/zmanim?cfg=json&latitude=${lat}&longitude=${lon}&date=${today}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                let zmanimHtml = '<h2>Zmanim for Today</h2><div class="zmanim-grid">';
+                for (const [key, value] of Object.entries(data.times)) {
+                    if (typeof value === 'string') {
+                        const time = new Date(value).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        zmanimHtml += `
+                            <div class="zman-item">
+                                <strong>${key.replace(/([A-Z])/g, ' $1').trim()}:</strong>
+                                <br>${time}
+                            </div>
+                        `;
+                    }
+                }
+                zmanimHtml += '</div>';
+                document.getElementById('zmanim').innerHTML = zmanimHtml;
+            } catch (error) {
+                document.getElementById('zmanim').innerHTML = `Error fetching zmanim: ${error.message}`;
+            }
+        }
+
+        async function fetchShabbatTimes(lat, lon) {
+            const today = new Date();
+            const fridayOffset = (5 - today.getDay() + 7) % 7; // Days until next Friday
+            const nextFriday = new Date(today);
+            nextFriday.setDate(today.getDate() + fridayOffset);
+            const dateStr = nextFriday.toISOString().split('T')[0];
+
+            const url = `https://www.hebcal.com/shabbat?cfg=json&latitude=${lat}&longitude=${lon}&date=${dateStr}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                let shabbatHtml = '<h2>Next Shabbat Times</h2><div class="shabbat-times">';
+                data.items.forEach(item => {
+                    const time = new Date(item.date).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    shabbatHtml += `
+                        <div>
+                            <strong>${item.title}:</strong> ${time}
+                        </div>
+                    `;
+                });
+                shabbatHtml += '</div>';
+                document.getElementById('shabbat').innerHTML = shabbatHtml;
+            } catch (error) {
+                document.getElementById('shabbat').innerHTML = `Error fetching Shabbat times: ${error.message}`;
+            }
+        }
+
+        // Optional: Calculate on page load if coordinates are already present
+        window.onload = function() {
+            const lat = document.getElementById('latitude').value;
+            const lon = document.getElementById('longitude').value;
+            if (lat && lon) {
+                calculateAll();
+            }
+        };
+    </script>
 </body>
 </html>
