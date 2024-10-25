@@ -70,21 +70,35 @@ function calculateHebrewDate() {
 
     try {
         const now = new Date();
-        const location = new Hebcal.Location(lat, lon);
-        const hDate = new Hebcal.HDate(now);
-        const zmanim = new Hebcal.Zmanim(location, hDate);
+        // Create location using the newer API
+        const location = new hebcal.Location(
+            parseFloat(lat),
+            parseFloat(lon),
+            false, // useElevation
+            'UTC', // timezone string
+            'Custom Location', // name
+            'XX', // country code
+            0 // elevation
+        );
 
+        // Create HDate instance
+        const hDate = new hebcal.HDate();
+
+        // Create Zmanim instance with the newer API
+        const zmanim = new hebcal.Zmanim(location, hDate.greg());
+
+        // Get zmanim times using the newer method names
         const zmanimTimes = {
-            'Sunrise': zmanim.sunrise(),
-            'Sunset': zmanim.sunset(),
-            'Chatzot': zmanim.chatzot(),
-            'Mincha Gedola': zmanim.minchaGedola(),
-            'Plag HaMincha': zmanim.plagHaMincha()
+            'Sunrise': zmanim.sunrise,
+            'Sunset': zmanim.sunset,
+            'Chatzot': zmanim.chatzot,
+            'Mincha Gedola': zmanim.minchaGedola,
+            'Plag HaMincha': zmanim.plagHaMincha
         };
 
         let zmanimHtml = '';
         for (const [name, time] of Object.entries(zmanimTimes)) {
-            if (time) {
+            if (time instanceof Date) {
                 zmanimHtml += `<p><strong>${name}:</strong> ${time.toLocaleTimeString()}</p>`;
             }
         }
